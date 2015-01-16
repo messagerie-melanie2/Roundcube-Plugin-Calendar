@@ -1,15 +1,14 @@
 Description
 -----------
 
-Plugin Calendar pour Roundcube basé sur le plugin Calendar kolab (http://git.kolab.org/roundcubemail-plugins-kolab/).
-Des modifications ont été apporté notamment pour la skin mobile.
-Un driver Mélanie2 utilisant l'ORM M2 a également été développé.
+Plugin Kolab Calendar pour Roundcube (http://git.kolab.org/roundcubemail-plugins-kolab/).
+Cette version est packagée avec le module skin mobile et le driver Mélanie2 (utilisable avec l'ORM Mélanie2 https://github.com/messagerie-melanie2/ORM-M2).
 
 
 Version
 -------
 
-La version actuellement est basé sur la version 3.1.13 du plugin Calendar Kolab
+La version utilisée est la 3.1.13 du plugin Calendar Kolab
 
 
 A calendar module for Roundcube
