@@ -293,7 +293,9 @@ class melanie2_mapping
         // Tableau permettant de recuperer toutes les valeurs de la recurrence
         $recurrence = array();
         // Récupération des informations de récurrence de l'évènement
-        $_recurrence = $event->recurrence;
+        $_recurrence = $event->recurrence->rrule;
+
+
         // Si une recurrence est bien definie dans l'evenement
         if ($_recurrence->type !== LibMelanie\Api\Melanie2\Recurrence::RECURTYPE_NORECUR) {
             if (isset($_recurrence->count)

@@ -1,24 +1,24 @@
 <?php
-
-$labels = array();
-
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Ansicht';
 $labels['time_format'] = 'Zeitformatierung';
-$labels['timeslots'] = 'Zeitraster pro Stunde';
 $labels['first_day'] = 'Erster Wochentag';
 $labels['first_hour'] = 'Erste angezeigte Stunde';
 $labels['workinghours'] = 'Arbeitszeiten';
-$labels['add_category'] = 'Katgorie hinzufügen';
-$labels['remove_category'] = 'Katgorie entfernen';
+$labels['add_category'] = 'Kategorie hinzufügen';
+$labels['remove_category'] = 'Kategorie entfernen';
 $labels['defaultcalendar'] = 'Neue Termine erstellen in';
 $labels['eventcoloring'] = 'Färbung der Termine';
 $labels['coloringmode0'] = 'Farbe des Kalenders';
 $labels['coloringmode1'] = 'Farbe der Kategorie';
 $labels['coloringmode2'] = 'Kalenderfarbe aussen, Kategoriefarbe innen';
 $labels['coloringmode3'] = 'Kategoriefarbe aussen, Kalenderfarbe innen';
-
-// calendar
 $labels['calendar'] = 'Kalender';
 $labels['calendars'] = 'Kalender';
 $labels['category'] = 'Kategorie';
@@ -36,7 +36,6 @@ $labels['new_event'] = 'Neuer Termin';
 $labels['edit_event'] = 'Termin bearbeiten';
 $labels['edit'] = 'Bearbeiten';
 $labels['save'] = 'Speichern';
-$labels['remove'] = 'Entfernen';
 $labels['cancel'] = 'Abbrechen';
 $labels['select'] = 'Auswählen';
 $labels['print'] = 'Drucken';
@@ -47,24 +46,29 @@ $labels['all-day'] = 'ganztägig';
 $labels['export'] = 'Exportieren';
 $labels['exporttitle'] = 'Kalender als iCalendar exportieren';
 $labels['exportrange'] = 'Termine ab';
-$labels['exportattachments'] = 'Mit Anhängen';
-$labels['customdate'] = 'Eigenes Datum';
 $labels['location'] = 'Ort';
+$labels['url'] = 'URL';
 $labels['date'] = 'Datum';
 $labels['start'] = 'Beginn';
 $labels['end'] = 'Ende';
+$labels['repeat'] = 'Wiederholung';
 $labels['selectdate'] = 'Datum auswählen';
 $labels['freebusy'] = 'Zeige mich als';
 $labels['free'] = 'Frei';
 $labels['busy'] = 'Gebucht';
 $labels['outofoffice'] = 'Abwesend';
 $labels['tentative'] = 'Mit Vorbehalt';
+$labels['status'] = 'Status';
+$labels['status-confirmed'] = 'Bestätigt';
+$labels['status-cancelled'] = 'Gekündigt';
 $labels['priority'] = 'Priorität';
 $labels['sensitivity'] = 'Sichtbarkeit';
 $labels['public'] = 'öffentlich';
 $labels['private'] = 'privat';
 $labels['confidential'] = 'vertraulich';
 $labels['alarms'] = 'Erinnerung';
+$labels['comment'] = 'Kommentar';
+$labels['unknown'] = 'Unbekannt';
 $labels['generated'] = 'erstellt am';
 $labels['printdescriptions'] = 'Beschrieb drucken';
 $labels['parentcalendar'] = 'Erstellen in';
@@ -79,9 +83,6 @@ $labels['onemonthback'] = '1 Monat zurück';
 $labels['nmonthsback'] = '$nr Monate zurück';
 $labels['showurl'] = 'URL anzeigen';
 $labels['showurldescription'] = 'Über die folgende Adresse können Sie mit einem beliebigen Kalenderprogramm Ihren Kalender abrufen (nur lesend), sofern dieses das iCal-Format unterstützt.';
-$labels['caldavurldescription'] = 'Benutzen Sie folgende Addresse in einer <a href="http://de.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a>-Anwendung (wie z.B. Evolution oder Mozilla Thunderbird) um diesen spezifischen Kalender mit dem Computer oder Mobiltelefon zu synchronisieren.';
-
-// agenda view
 $labels['listrange'] = 'Angezeigter Bereich:';
 $labels['listsections'] = 'Unterteilung:';
 $labels['smartsections'] = 'Intelligent';
@@ -95,13 +96,8 @@ $labels['nextmonth'] = 'Nächsten Monat';
 $labels['weekofyear'] = 'KW';
 $labels['pastevents'] = 'Vergangene';
 $labels['futureevents'] = 'Zukünftige';
-
-// alarm/reminder settings
-$labels['showalarms'] = 'Erinnerungen anzeigen';
 $labels['defaultalarmtype'] = 'Standard-Erinnerungseinstellung';
 $labels['defaultalarmoffset'] = 'Standard-Erinnerungszeit';
-
-// attendees
 $labels['attendee'] = 'Teilnehmer';
 $labels['role'] = 'Rolle';
 $labels['availability'] = 'Verfüg.';
@@ -110,7 +106,6 @@ $labels['addattendee'] = 'Hinzufügen';
 $labels['roleorganizer'] = 'Organisator';
 $labels['rolerequired'] = 'Erforderlich';
 $labels['roleoptional'] = 'Optional';
-$labels['rolechair'] = 'Vorsitz';
 $labels['availfree'] = 'Frei';
 $labels['availbusy'] = 'Gebucht';
 $labels['availunknown'] = 'Unbekannt';
@@ -133,45 +128,24 @@ $labels['eventupdatesubjectempty'] = 'Termin wurde aktualisiert';
 $labels['eventupdatemailbody'] = "*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees\n\nIm Anhang finden Sie eine iCalendar-Datei mit den aktualisiereten Termindaten. Diese können Sie in Ihre Kalenderanwendung importieren.";
 $labels['eventcancelsubject'] = '"$title" wurde abgesagt';
 $labels['eventcancelmailbody'] = "*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees\n\nDer Termin wurde von \$organizer abgesagt.\n\nIm Anhang finden Sie eine iCalendar-Datei mit den Termindaten.";
-
-// invitation handling
-$labels['itipinvitation'] = 'Einladung zu';
-$labels['itipreply'] = 'Antwort zu';
-$labels['itipupdate'] = 'Aktialisiert:';
-$labels['itipcancellation'] = 'Abgesagt:';
-$labels['itipaccepted'] = 'Akzeptieren';
-$labels['itiptentative'] = 'Mit Vorbehalt';
-$labels['itipdeclined'] = 'Ablehnen';
-$labels['itipsubjectaccepted'] = 'Einladung zu "$title" wurde von $name angenommen';
-$labels['itipsubjecttentative'] = 'Einladung zu "$title" wurde von $name mit Vorbehalt angenommen';
-$labels['itipsubjectdeclined'] = 'Einladung zu "$title" wurde von $name abgelehnt';
 $labels['itipmailbodyaccepted'] = "\$sender hat die Einladung zum folgenden Termin angenommen:\n\n*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender hat die Einladung mit Vorbehalt zum folgenden Termin angenommen:\n\n*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender hat die Einladung zum folgenden Termin abgelehnt:\n\n*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees";
 $labels['itipdeclineevent'] = 'Möchten Sie die Einladung zu diesem Termin ablehnen?';
-$labels['declinedeleteconfirm'] = 'Möchten Sie den abgelehnten Termin ebenfalls aus Ihrem Kalender löschen?';
-$labels['importtocalendar'] = 'In Kalender übernehmen';
-$labels['removefromcalendar'] = 'Aus meinem Kalender löschen';
-$labels['updateattendeestatus'] = 'Teilnehmerstatus aktualisieren';
-$labels['acceptinvitation'] = 'Möchten Sie die Einladung zu diesem Termin annehmen?';
-$labels['youhaveaccepted'] = 'Sie haben die Einladung angenommen';
-$labels['youhavetentative'] = 'Sie haben die Einladung mit Vorbehalt angenommen';
-$labels['youhavedeclined'] = 'Sie haben die Einladung abgelehnt';
+$labels['declinedeleteconfirm'] = 'Do you also want to delete this declined event from your calendar?';
 $labels['notanattendee'] = 'Sie sind nicht in der Liste der Teilnehmer aufgeführt';
 $labels['eventcancelled'] = 'Der Termin wurde vom Organisator abgesagt';
 $labels['saveincalendar'] = 'speichern in';
-
-// event dialog tabs
+$labels['resource'] = 'Ressource';
+$labels['resourcedetails'] = 'Details';
 $labels['tabsummary'] = 'Übersicht';
 $labels['tabrecurrence'] = 'Wiederholung';
 $labels['tabattendees'] = 'Teilnehmer';
 $labels['tabattachments'] = 'Anhänge';
 $labels['tabsharing'] = 'Freigabe';
-
-// messages
+$labels['deleteobjectconfirm'] = 'Möchten Sie diesen Termin wirklich löschen?';
 $labels['deleteventconfirm'] = 'Möchten Sie diesen Termin wirklich löschen?';
 $labels['deletecalendarconfirm'] = 'Möchten Sie diesen Kalender mit allen Terminen wirklich löschen?';
-$labels['deletecalendarconfirmrecursive'] = 'Möchten Sie diesen Kalender mit allen Terminen und Unter-Kalendern wirklich löschen?';
 $labels['savingdata'] = 'Speichere Daten...';
 $labels['errorsaving'] = 'Fehler beim Speichern.';
 $labels['operationfailed'] = 'Die Aktion ist fehlgeschlagen.';
@@ -188,48 +162,23 @@ $labels['importedsuccessfully'] = 'Der Termin wurde erfolgreich in \'$calendar\'
 $labels['attendeupdateesuccess'] = 'Teilnehmerstatus erfolgreich aktualisiert';
 $labels['itipsendsuccess'] = 'Einladung an Teilnehmer versendet.';
 $labels['itipresponseerror'] = 'Die Antwort auf diese Einladung konnte nicht versendet werden';
+$labels['itipinvalidrequest'] = 'Diese Einladung ist nicht mehr gültig';
 $labels['sentresponseto'] = 'Antwort auf diese Einladung erfolgreich an $mailto gesendet';
-$labels['localchangeswarning'] = 'Änderungen an diesem Termin werden nur in Ihrem Kalender gespeichert und nicht an den Organisator des Termins gesendet.';
 $labels['importsuccess'] = 'Es wurden $nr Termine erfolgreich importiert';
 $labels['importnone'] = 'Keine Termine zum Importieren gefunden';
 $labels['importerror'] = 'Fehler beim Importieren';
-
-// recurrence form
-$labels['repeat'] = 'Wiederholung';
-$labels['frequency'] = 'Wiederholung';
-$labels['never'] = 'nie';
-$labels['daily'] = 'täglich';
-$labels['weekly'] = 'wöchentlich';
-$labels['monthly'] = 'monatlich';
-$labels['yearly'] = 'jährlich';
-$labels['rdate'] = 'per Datum';
-$labels['every'] = 'Alle';
-$labels['days'] = 'Tag(e)';
-$labels['weeks'] = 'Woche(n)';
-$labels['months'] = 'Monat(e)';
-$labels['years'] = 'Jahre(e) im:';
-$labels['bydays'] = 'Am';
-$labels['untildate'] = 'am';
-$labels['each'] = 'Jeden';
-$labels['onevery'] = 'An jedem';
-$labels['onsamedate'] = 'Am gleichen Tag';
-$labels['forever'] = 'unendlich';
-$labels['recurrencend'] = 'bis';
-$labels['forntimes'] = '$nr Wiederholungen';
-$labels['first'] = 'erster';
-$labels['second'] = 'zweiter';
-$labels['third'] = 'dritter';
-$labels['fourth'] = 'vierter';
-$labels['last'] = 'letzter';
-$labels['dayofmonth'] = 'Tag des Montats';
-$labels['addrdate'] = 'Datum hinzufügen';
+$labels['aclnorights'] = 'Sie haben keine Administrator-Rechte für diesen Kalender.';
 $labels['changeeventconfirm'] = 'Termin ändern';
-$labels['removeeventconfirm'] = 'Termin löschen';
 $labels['changerecurringeventwarning'] = 'Dies ist eine Terminreihe. Möchten Sie nur den aktuellen, diesen und alle zukünftigen oder alle Termine bearbeiten oder die Änderungen als neuen Termin speichern?';
-$labels['removerecurringeventwarning'] = 'Dies ist eine Terminreihe. Möchten Sie nur den aktuellen, diesen und alle zukünftigen oder alle Termine löschen?';
 $labels['currentevent'] = 'Aktuellen';
 $labels['futurevents'] = 'Zukünftige';
 $labels['allevents'] = 'Alle';
 $labels['saveasnew'] = 'Als neu speichern';
-
+$labels['birthdays'] = 'Geburtstage';
+$labels['birthdayscalendar'] = 'Geburtstags-Kalender';
+$labels['displaybirthdayscalendar'] = 'Geburtstags-Kalender anzeigen';
+$labels['birthdayscalendarsources'] = 'Für diese Adressbücher';
+$labels['birthdayeventtitle'] = '$names Geburtstag';
+$labels['birthdayage'] = 'Alter $age';
+$labels['actiondelete'] = 'Gelöscht';
 ?>
