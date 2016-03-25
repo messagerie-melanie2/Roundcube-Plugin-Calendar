@@ -3327,9 +3327,6 @@ function rcube_calendar_ui(settings)
         date = fc.fullCalendar('getDate');
       if (date)
         query.date = date2unixtime(date);
-
-      if (window.history.replaceState)
-        window.history.replaceState({}, document.title, rcmail.url('', query).replace('&_action=', ''));
     };
 
     this.resource_search = resource_search;

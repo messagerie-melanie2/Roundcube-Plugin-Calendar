@@ -50,8 +50,8 @@ class calendar_ui
         // add taskbar button
         $this->cal->add_button(array(
             'command' => 'calendar',
-            'class'   => 'button-calendar ui-link ui-btn ui-shadow ui-corner-all ui-icon-calendar ui-btn-icon-left',
-            'classsel' => 'button-calendar button-selected ui-link ui-btn ui-shadow ui-corner-all ui-icon-calendar ui-btn-icon-left',
+            'class'   => 'button-calendar ui-link ui-btn ui-corner-all ui-icon-calendar ui-btn-icon-left',
+            'classsel' => 'button-calendar button-selected ui-link ui-btn ui-corner-all ui-icon-calendar ui-btn-icon-left',
             'innerclass' => 'button-inner',
             'label'   => 'calendar.calendar',
         ), 'taskbar_mobile');
@@ -402,14 +402,16 @@ class calendar_ui
       $prop['freebusy']    = $this->cal->driver->freebusy;
       $prop['attachments'] = $this->cal->driver->attachments;
       $prop['undelete']    = $this->cal->driver->undelete;
-      $prop['feedurl']     = $this->cal->get_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics', 'action' => 'feed'));
+      // PAMELA
+      $prop['feedurl']     = $this->cal->get_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics'));
+      $prop['feedfreebusyurl'] = $this->cal->get_freebusy_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics'));
 
       $jsenv[$id] = $prop;
     }
 
     $classes = array('calendar', 'cal-'  . asciiwords($id, true));
     $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
-      html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '');
+      html_entity_decode($prop['name'], ENT_COMPAT, RCUBE_CHARSET) : '');
 
     if ($prop['virtual'])
       $classes[] = 'virtual';
@@ -426,7 +428,7 @@ class calendar_ui
     if (!$activeonly || $prop['active']) {
       $label_id = 'cl:' . $id;
       $content = html::div(join(' ', $classes),
-        html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
+        html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? rcube::Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' :
           html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
           html::span('actions',
@@ -622,7 +624,7 @@ class calendar_ui
       $attrib['id'] = 'rcmImportForm';
 
     // Get max filesize, enable upload progress bar
-    $max_filesize = rcube_upload_init();
+    $max_filesize = $this->rc->upload_init();
 
     $accept = '.ics, text/calendar, text/x-vcalendar, application/ics';
     if (class_exists('ZipArchive', false)) {
@@ -646,7 +648,7 @@ class calendar_ui
 
     $html .= html::div('form-section',
       html::div(null, $input->show()) .
-      html::div('hint', rcube_label(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
+      html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
     );
 
     $html .= html::div('form-section',
@@ -725,7 +727,7 @@ class calendar_ui
       $attrib['id'] = 'rcmUploadForm';
 
     // Get max filesize, enable upload progress bar
-    $max_filesize = rcube_upload_init();
+    $max_filesize =$this->rc->upload_init();
 
     $button = new html_inputfield(array('type' => 'button'));
     $input = new html_inputfield(array(
@@ -734,9 +736,9 @@ class calendar_ui
 
     return html::div($attrib,
       html::div(null, $input->show()) .
-      html::div('formbuttons', $button->show(rcube_label('upload'), array('class' => 'button mainaction',
-        'onclick' => JS_OBJECT_NAME . ".upload_file(this.form)"))) .
-      html::div('hint', rcube_label(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
+      html::div('formbuttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
+        'onclick' => rcmail_output::JS_OBJECT_NAME . ".upload_file(this.form)"))) .
+      html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
     );
   }
 
@@ -912,7 +914,7 @@ class calendar_ui
       html::tag('table', array('id' => $attrib['id'] . '-owner', 'style' => 'display:none') + $attrib,
         html::tag('thead', null,
           html::tag('tr', null,
-            html::tag('td', array('colspan' => 2), Q($this->cal->gettext('resourceowner')))
+            html::tag('td', array('colspan' => 2), rcube::Q($this->cal->gettext('resourceowner')))
           )
         ) .
         html::tag('tbody', null, ''),

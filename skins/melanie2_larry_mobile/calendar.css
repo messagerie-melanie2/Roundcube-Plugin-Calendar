@@ -109,12 +109,29 @@ div.sidebarclosed {
 	background-color: #ddd;
 }
 
+
+.jqm-calendar-footer {
+  height: 38px;
+}
+
+.jqm-calendar-footer .ui-title {
+  margin: 0;
+}
+
+.jqm-calendar-footer .ui-bar {
+  padding: 0 0.5em;
+}
+
+.jqm-calendar-footer .ui-bar .ui-controlgroup {
+  margin: 0;
+}
+
 #calendar {
 	position: absolute;
 	top: 44px;
 	left: 0;
 	right: 0;
-	bottom: 55px;
+	bottom: 40px;
 	text-shadow: none;
 }
 
@@ -141,7 +158,7 @@ pre {
 
 #calendars {
 	position: absolute;
-	top: 128px;
+	top: 184px;
 	left: 0;
 	bottom: 0;
 	right: 0;

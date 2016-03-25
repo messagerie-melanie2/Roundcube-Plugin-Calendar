@@ -461,6 +461,8 @@ pre {
 }
 
 #calfeedurl,
+/* PAMELA */
+#calfreebusyurl,
 #caldavurl {
 	width: 98%;
 	background: #fbfbfb;

@@ -302,7 +302,7 @@ class calendar extends rcube_plugin
     $this->rc->output->add_label('libcalendaring.itipaccepted','libcalendaring.itiptentative','libcalendaring.itipdeclined','libcalendaring.itipdelegated','libcalendaring.expandattendeegroup','libcalendaring.expandattendeegroupnodata');
 
     // initialize attendees autocompletion
-    rcube_autocomplete_init();
+    $this->rc->autocomplete_init();
 
     $this->rc->output->set_env('timezone', $this->timezone->getName());
     $this->rc->output->set_env('calendar_driver', $this->rc->config->get('calendar_driver'), false);
@@ -369,7 +369,7 @@ class calendar extends rcube_plugin
       $select->add($this->gettext('month'), "month");
       $select->add($this->gettext('agenda'), "table");
       $p['blocks']['view']['options']['default_view'] = array(
-        'title' => html::label($field_id, Q($this->gettext('default_view'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('default_view'))),
         'content' => $select->show($this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view'])),
       );
     }
@@ -385,7 +385,7 @@ class calendar extends rcube_plugin
       $select = new html_select(array('name' => '_timeslots', 'id' => $field_id));
       $select->add($choices);
       $p['blocks']['view']['options']['timeslots'] = array(
-        'title' => html::label($field_id, Q($this->gettext('timeslots'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('timeslots'))),
         'content' => $select->show(strval($this->rc->config->get('calendar_timeslots', $this->defaults['calendar_timeslots']))),
       );
     }
@@ -398,15 +398,15 @@ class calendar extends rcube_plugin
 
       $field_id = 'rcmfd_firstday';
       $select = new html_select(array('name' => '_first_day', 'id' => $field_id));
-      $select->add(rcube_label('sunday'), '0');
-      $select->add(rcube_label('monday'), '1');
-      $select->add(rcube_label('tuesday'), '2');
-      $select->add(rcube_label('wednesday'), '3');
-      $select->add(rcube_label('thursday'), '4');
-      $select->add(rcube_label('friday'), '5');
-      $select->add(rcube_label('saturday'), '6');
+      $select->add($this->gettext('sunday'), '0');
+      $select->add($this->gettext('monday'), '1');
+      $select->add($this->gettext('tuesday'), '2');
+      $select->add($this->gettext('wednesday'), '3');
+      $select->add($this->gettext('thursday'), '4');
+      $select->add($this->gettext('friday'), '5');
+      $select->add($this->gettext('saturday'), '6');
       $p['blocks']['view']['options']['first_day'] = array(
-        'title' => html::label($field_id, Q($this->gettext('first_day'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('first_day'))),
         'content' => $select->show(strval($this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']))),
       );
     }
@@ -424,7 +424,7 @@ class calendar extends rcube_plugin
 
       $field_id = 'rcmfd_firsthour';
       $p['blocks']['view']['options']['first_hour'] = array(
-        'title' => html::label($field_id, Q($this->gettext('first_hour'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('first_hour'))),
         'content' => $select_hours->show($this->rc->config->get('calendar_first_hour', $this->defaults['calendar_first_hour']), array('name' => '_first_hour', 'id' => $field_id)),
       );
     }
@@ -437,7 +437,7 @@ class calendar extends rcube_plugin
 
       $field_id = 'rcmfd_workstart';
       $p['blocks']['view']['options']['workinghours'] = array(
-        'title' => html::label($field_id, Q($this->gettext('workinghours'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('workinghours'))),
         'content' => $select_hours->show($this->rc->config->get('calendar_work_start', $this->defaults['calendar_work_start']), array('name' => '_work_start', 'id' => $field_id)) .
         ' &mdash; ' . $select_hours->show($this->rc->config->get('calendar_work_end', $this->defaults['calendar_work_end']), array('name' => '_work_end', 'id' => $field_id)),
       );
@@ -457,7 +457,7 @@ class calendar extends rcube_plugin
       $select_colors->add($this->gettext('coloringmode3'), 3);
 
       $p['blocks']['view']['options']['eventcolors'] = array(
-        'title' => html::label($field_id . 'value', Q($this->gettext('eventcoloring'))),
+        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('eventcoloring'))),
         'content' => $select_colors->show($this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring'])),
       );
     }
@@ -475,10 +475,10 @@ class calendar extends rcube_plugin
       $select_type = new html_select(array('name' => '_alarm_type', 'id' => $field_id));
       $select_type->add($this->gettext('none'), '');
       foreach ($this->driver->alarm_types as $type)
-        $select_type->add(rcube_label(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
+        $select_type->add($this->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
 
       $p['blocks']['view']['options']['alarmtype'] = array(
-        'title' => html::label($field_id, Q($this->gettext('defaultalarmtype'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('defaultalarmtype'))),
         'content' => $select_type->show($this->rc->config->get('calendar_default_alarm_type', '')),
       );
     }
@@ -493,11 +493,11 @@ class calendar extends rcube_plugin
       $input_value = new html_inputfield(array('name' => '_alarm_value', 'id' => $field_id . 'value', 'size' => 3));
       $select_offset = new html_select(array('name' => '_alarm_offset', 'id' => $field_id . 'offset'));
       foreach (array('-M','-H','-D','+M','+H','+D') as $trigger)
-        $select_offset->add(rcube_label('trigger' . $trigger, 'libcalendaring'), $trigger);
+        $select_offset->add($this->gettext('trigger' . $trigger, 'libcalendaring'), $trigger);
 
       $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
       $p['blocks']['view']['options']['alarmoffset'] = array(
-        'title' => html::label($field_id . 'value', Q($this->gettext('defaultalarmoffset'))),
+        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('defaultalarmoffset'))),
         'content' => $input_value->show($preset[0]) . ' ' . $select_offset->show($preset[1]),
       );
     }
@@ -516,7 +516,7 @@ class calendar extends rcube_plugin
           $default_calendar = $id;
       }
       $p['blocks']['view']['options']['defaultcalendar'] = array(
-        'title' => html::label($field_id . 'value', Q($this->gettext('defaultcalendar'))),
+        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('defaultcalendar'))),
         'content' => $select_cal->show($this->rc->config->get('calendar_default_calendar', $default_calendar)),
       );
     }
@@ -556,7 +556,7 @@ class calendar extends rcube_plugin
       ));
 
       $p['blocks']['itip']['options']['after_action'] = array(
-        'title'   => html::label($field_id, Q($this->gettext('afteraction'))),
+        'title'   => html::label($field_id, rcube::Q($this->gettext('afteraction'))),
         'content' => $select->show($val) . $folders->show($folder),
       );
     }
@@ -655,13 +655,13 @@ class calendar extends rcube_plugin
       $select_type = new html_select(array('name' => '_birthdays_alarm_type', 'id' => $field_id) + $input_attrib);
       $select_type->add($this->gettext('none'), '');
       foreach ($this->driver->alarm_types as $type) {
-        $select_type->add(rcube_label(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
+        $select_type->add($this->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
       }
 
       $input_value = new html_inputfield(array('name' => '_birthdays_alarm_value', 'id' => $field_id . 'value', 'size' => 3) + $input_attrib);
       $select_offset = new html_select(array('name' => '_birthdays_alarm_offset', 'id' => $field_id . 'offset') + $input_attrib);
       foreach (array('-M','-H','-D') as $trigger)
-        $select_offset->add(rcube_label('trigger' . $trigger, 'libcalendaring'), $trigger);
+        $select_offset->add($this->gettext('trigger' . $trigger, 'libcalendaring'), $trigger);
 
       $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_birthdays_alarm_offset', '-1D'));
       $p['blocks']['birthdays']['options']['birthdays_alarmoffset'] = array(
@@ -920,7 +920,7 @@ class calendar extends rcube_plugin
           // display message with Undo link.
           $msg = html::span(null, $this->gettext('successremoval'))
             . ' ' . html::a(array('onclick' => sprintf("%s.http_request('event', 'action=undo', %s.display_message('', 'loading'))",
-              JS_OBJECT_NAME, JS_OBJECT_NAME)), rcube_label('undo'));
+              rcmail_output::JS_OBJECT_NAME, rcmail_output::JS_OBJECT_NAME)), $this->gettext('undo'));
           $this->rc->output->show_message($msg, 'confirmation', null, true, $undo_time);
           $got_msg = true;
         }
@@ -1184,7 +1184,7 @@ class calendar extends rcube_plugin
         $master = $this->driver->get_event(array('id' => $old['recurrence_id'], 'calendar' => $old['calendar']), 0, true);
         unset($master['_instance'], $master['recurrence_date']);
 
-        $sent = $this->notify_attendees($master, null, $action, $event['_comment']);
+        $sent = $this->notify_attendees($master, null, $action, $event['_comment'], false);
         if ($sent < 0)
           $this->rc->output->show_message('calendar.errornotifying', 'error');
 
@@ -1416,7 +1416,7 @@ class calendar extends rcube_plugin
   }
 
   /**
-   * Handler for check-recent requests which are accidentally sent to calendar taks
+   * Handler for check-recent requests which are accidentally sent to calendar
    */
   function check_recent()
   {
@@ -1509,11 +1509,11 @@ class calendar extends rcube_plugin
     }
     else {
       if ($err == UPLOAD_ERR_INI_SIZE || $err == UPLOAD_ERR_FORM_SIZE) {
-        $msg = rcube_label(array('name' => 'filesizeerror', 'vars' => array(
+        $msg = $this->gettext(array('name' => 'filesizeerror', 'vars' => array(
             'size' => show_bytes(parse_bytes(ini_get('upload_max_filesize'))))));
       }
       else {
-        $msg = rcube_label('fileuploaderror');
+        $msg = $this->gettext('fileuploaderror');
       }
 
       $this->rc->output->command('plugin.import_error', array('message' => $msg));
@@ -1579,7 +1579,7 @@ class calendar extends rcube_plugin
     $calid = $filename = rcube_utils::get_input_value('source', rcube_utils::INPUT_GET);
 
     // PAMELA - Améliorer les performances de l'export en ne listant qu'un seul agenda
-    $calendars = $this->driver->list_calendars(false, false, $calid);
+    $calendars = $this->driver->list_calendars(0, null, $calid);
     $events = array();
 
     if ($calendars[$calid]) {
@@ -1780,6 +1780,12 @@ class calendar extends rcube_plugin
       array_unshift($event['attendees'], $organizer);
     }
 
+    // Convert HTML description into plain text
+    if ($this->is_html($event)) {
+      $h2t = new rcube_html2text($event['description'], false, true, 0);
+      $event['description'] = trim($h2t->get_text());
+    }
+
     // mapping url => vurl because of the fullcalendar client script
     $event['vurl'] = $event['url'];
     unset($event['url']);
@@ -1911,6 +1917,14 @@ class calendar extends rcube_plugin
     exit;
   }
 
+  /**
+   * Determine whether the given event description is HTML formatted
+   */
+  private function is_html($event)
+  {
+      // check for opening and closing <html> or <body> tags
+      return (preg_match('/<(html|body)(\s+[a-z]|>)/', $event['description'], $m) && strpos($event['description'], '</'.$m[1].'>') > 0);
+  }
 
   /**
    * Prepares new/edited event properties before save
@@ -2012,12 +2026,15 @@ class calendar extends rcube_plugin
   /**
    * Send out an invitation/notification to all event attendees
    */
-  private function notify_attendees($event, $old, $action = 'edit', $comment = null)
+  private function notify_attendees($event, $old, $action = 'edit', $comment = null, $rsvp = null)
   {
     if ($action == 'remove' || ($event['status'] == 'CANCELLED' && $old['status'] != $event['status'])) {
       $event['cancelled'] = true;
       $is_cancelled = true;
     }
+
+    if ($rsvp === null)
+      $rsvp = !$old || $event['sequence'] > $old['sequence'];
 
     $itip = $this->load_itip();
     $emails = $this->get_user_emails();
@@ -2031,7 +2048,7 @@ class calendar extends rcube_plugin
 
     // compose multipart message using PEAR:Mail_Mime
     $method = $action == 'remove' ? 'CANCEL' : 'REQUEST';
-    $message = $itip->compose_itip_message($event, $method, !$old || $event['sequence'] > $old['sequence']);
+    $message = $itip->compose_itip_message($event, $method, $rsvp);
 
     // list existing attendees from $old event
     $old_attendees = array();
@@ -2637,7 +2654,7 @@ class calendar extends rcube_plugin
 
     return html::div(rtrim('event-row ' . $class),
       html::span('event-date', $time) .
-      html::span('event-title', Q($event['title']))
+      html::span('event-title', rcube::Q($event['title']))
     );
   }
 
@@ -3090,11 +3107,11 @@ class calendar extends rcube_plugin
     $uid     = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
     $mbox    = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
     $mime_id = rcube_utils::get_input_value('_part', rcube_utils::INPUT_POST);
-    $charset = RCMAIL_CHARSET;
+    $charset = RCUBE_CHARSET;
 
     // establish imap connection
     $imap = $this->rc->get_storage();
-    $imap->set_mailbox($mbox);
+    $imap->set_folder($mbox);
 
     if ($uid && $mime_id) {
       $part = $imap->get_message_part($uid, $mime_id);
@@ -3154,7 +3171,7 @@ class calendar extends rcube_plugin
 
     // establish imap connection
     $imap = $this->rc->get_storage();
-    $imap->set_mailbox($mbox);
+    $imap->set_folder($mbox);
     $message = new rcube_message($uid);
 
     if ($message->headers) {
@@ -3233,6 +3250,8 @@ class calendar extends rcube_plugin
 
         $args['attachments'][] = array('path' => $tmp_path, 'name' => $filename . '.ics', 'mimetype' => 'text/calendar');
         $args['param']['subject'] = $event['title'];
+        // PAMELA MANTIS 3909: le message reste vide quand on le crée depuis un événement
+        $args['param']['body'] = $event['description'];
       }
     }
 
@@ -3254,8 +3273,39 @@ class calendar extends rcube_plugin
    */
   public function get_url($param = array())
   {
-    $param += array('task' => 'calendar');
-    return $this->rc->url($param, true, true);
+    // PAMELA - Nouvelle URL
+    $url = '/public/calendar/';
+    $delm = '?';
+
+    foreach ($param as $key => $val) {
+      if ($val !== '' && $val !== null) {
+        $par  = $key;
+        $url .= $delm.urlencode($par).'='.urlencode($val);
+        $delm = '&';
+      }
+    }
+
+    return rcube_utils::resolve_url($url);
+  }
+
+  /**
+   * PAMELA - Build an absolute URL with the given parameters
+   */
+  public function get_freebusy_url($param = array())
+  {
+    // PAMELA - Nouvelle URL
+    $url = '/public/freebusy/';
+    $delm = '?';
+
+    foreach ($param as $key => $val) {
+      if ($val !== '' && $val !== null) {
+        $par  = $key;
+        $url .= $delm.urlencode($par).'='.urlencode($val);
+        $delm = '&';
+      }
+    }
+
+    return rcube_utils::resolve_url($url);
   }
 
 

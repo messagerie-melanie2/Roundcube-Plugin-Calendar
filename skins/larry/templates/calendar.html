@@ -339,8 +339,8 @@
 </div>
 
 <div id="eventhistory" class="uidialog" aria-hidden="true">
-    <roundcube:object name="plugin.object_changelog_table" id="event-changelog-table" class="records-table changelog-table" domain="calendar" />
-    <div class="compare-button"><input type="button" class="button" value="↳ <roundcube:label name='calendar.compare' />" /></div>
+    <roundcube:object name="plugin.object_changelog_table" id="event-changelog-table" class="records-table changelog-table" />
+    <div class="compare-button"><input type="button" class="button" value="↳ <roundcube:label name='libkolab.compare' />" /></div>
 </div>
 
 <div id="calendarform" class="uidialog" aria-hidden="true">
@@ -358,6 +358,9 @@
 <div id="calendarurlbox" class="uidialog">
 	<p><roundcube:label name="calendar.showurldescription" /></p>
 	<textarea id="calfeedurl" rows="2" readonly="readonly"></textarea>
+	<!-- PAMELA -->
+	<p><roundcube:label name="calendar.freebusyurldescription" /></p>
+  <textarea id="calfreebusyurl" rows="2" readonly="readonly"></textarea>
 	<div id="calendarcaldavurl" style="display:none">
 		<p><roundcube:label name="calendar.caldavurldescription" html="yes" /></p>
 		<textarea id="caldavurl" rows="2" readonly="readonly"></textarea>

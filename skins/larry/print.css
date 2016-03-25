@@ -117,8 +117,8 @@ body, td, th, div, p, h3, select, input, textarea {
 }
 
 .fc-event-skin,
-.fc-event-inner .fc-event-skin {
-	color: black;
+.fc-event-skin .fc-event-inner {
+	color: black !important;
 	background-color: #fff !important;
 }
 

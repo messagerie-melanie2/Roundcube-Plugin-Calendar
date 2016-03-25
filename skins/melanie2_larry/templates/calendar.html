@@ -78,7 +78,7 @@
 		<li role="menuitem"><roundcube:button command="calendar-showurl" label="calendar.showurl" classAct="active" /></li>
 		<roundcube:if condition="env:calendar_driver == 'kolab'" />
 		<li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
-		<roundcube:endif />		
+		<roundcube:endif />
     <!--  PAMELA -->
     <roundcube:container name="calendaroptionsmenu" id="calendargroupoptionsmenu" />
 	</ul>
@@ -358,6 +358,9 @@
 <div id="calendarurlbox" class="uidialog">
 	<p><roundcube:label name="calendar.showurldescription" /></p>
 	<textarea id="calfeedurl" rows="2" readonly="readonly"></textarea>
+	<!-- PAMELA -->
+  <p><roundcube:label name="calendar.freebusyurldescription" /></p>
+  <textarea id="calfreebusyurl" rows="2" readonly="readonly"></textarea>
 	<div id="calendarcaldavurl" style="display:none">
 		<p><roundcube:label name="calendar.caldavurldescription" html="yes" /></p>
 		<textarea id="caldavurl" rows="2" readonly="readonly"></textarea>

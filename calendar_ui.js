@@ -3267,6 +3267,8 @@ function rcube_calendar_ui(settings)
         }).show();
 
         $('#calfeedurl').val(calendar.feedurl).select();
+        // PAMELA
+        $('#calfreebusyurl').val(calendar.feedfreebusyurl);
       }
     };
 
@@ -3864,7 +3866,7 @@ function rcube_calendar_ui(settings)
       eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
         if (event.end == null || event.end.getTime() < event.start.getTime()) {
           event.end = new Date(event.start.getTime() + (allDay ? DAY_MS : HOUR_MS));
-        }        
+        }
         // moved to all-day section: set times to 12:00 - 13:00
         if (allDay && !event.allDay) {
           event.start.setHours(12);
