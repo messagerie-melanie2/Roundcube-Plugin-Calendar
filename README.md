@@ -8,7 +8,7 @@ Cette version est packagée avec le module skin mobile et le driver Mélanie2 (u
 Version
 -------
 
-La version utilisée est la 3.2.8 du plugin Calendar Kolab
+La version utilisée est la 3.2.9 du plugin Calendar Kolab
 
 
 A calendar module for Roundcube
