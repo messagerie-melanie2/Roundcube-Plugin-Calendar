@@ -38,7 +38,10 @@ $labels['color'] = 'Couleur';
 $labels['day'] = 'Jour';
 $labels['week'] = 'Semaine';
 $labels['month'] = 'Mois';
-$labels['agenda'] = 'Ordre du jour';
+// PAMELA
+$labels['agenda'] = 'Planning';
+$labels['calendar_name'] = 'Nom d\'agenda';
+$labels['listsort'] = 'Trier par :';
 $labels['new'] = 'Nouveau';
 $labels['new_event'] = 'Nouvel évènement';
 $labels['edit_event'] = 'Modifier l\'évènement';
@@ -58,7 +61,7 @@ $labels['exporttitle'] = 'Exporter vers iCalendar';
 $labels['delete_all'] = 'Vider l\'agenda';
 // MANTIS 3602: Problème de traduction
 $labels['exportrange'] = 'Évènements depuis';
-$labels['exportattachments'] = 'With attachments';
+$labels['exportattachments'] = 'Avec les pièces jointes';
 $labels['customdate'] = 'Date personnalisée';
 $labels['location'] = 'Lieu';
 $labels['url'] = 'URL';
@@ -109,6 +112,7 @@ $labels['showurl'] = 'Afficher l\'URL de l\'agenda';
 $labels['showurldescription'] = 'Utilisez l\'adresse suivante pour accéder(lecture seule) à votre agenda depuis une autre application. Vous pouvez copier/coller celle-ci dans n\'importe quel agenda électronique gérant le format iCal. Cette adresse nécessite une authentification Mélanie2.';
 // PAMELA
 $labels['freebusyurldescription'] = 'L\'adresse suivante permet d\'afficher les disponibilités de l\'agenda depuis une autre application. Vous pouvez copier/coller celle-ci dans n\'importe quel agenda électronique gérant le format iCal. Cette adresse ne nécessite pas d\'authentification.';
+$labels['calendarfeedurldescription'] = "Cochez cette case pour partager votre agenda via une adresse unique sans authentification. Vous pouvez copier/coller celle-ci dans n'importe quel agenda électronique gérant le format iCal.";
 $labels['caldavurldescription'] = 'Copiez cette adresse vers une application client (comme Evolution ou Mozilla Thunderbird) compatible <a href="http://fr.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> pour synchroniser ce calendrier avec votre ordinateur ou votre smartphone.';
 $labels['findcalendars'] = 'Recherche de calendriers...';
 $labels['searchterms'] = 'Critères de recherche';

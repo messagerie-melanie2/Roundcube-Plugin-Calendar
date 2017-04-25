@@ -118,7 +118,9 @@ function rcube_calendar_ui(settings)
       listPage: 7,  // advance one week in agenda view
       listRange: settings.agenda_range,
       listSections: settings.agenda_sections,
-      tableCols: ['handle', 'date', 'time', 'title', 'location'],
+      // PAMELA - Tri des événements par le nom du calendrier
+      listSort: settings.agenda_sort,
+      tableCols: ['handle', 'calendar-name', 'date', 'time', 'title', 'location'],
       defaultView: rcmail.env.view || settings.default_view,
       allDayText: rcmail.gettext('all-day', 'calendar'),
       buttonText: {
@@ -1069,7 +1071,7 @@ function rcube_calendar_ui(settings)
       $dialog.dialog({
         modal: true,
         resizable: (!bw.ie6 && !bw.ie7),  // disable for performance reasons
-        closeOnEscape: false,
+        closeOnEscape: true,
         title: rcmail.gettext((action == 'edit' ? 'edit_event' : 'new_event'), 'calendar'),
         open: function() {
           editform.attr('aria-hidden', 'false');
@@ -2735,6 +2737,8 @@ function rcube_calendar_ui(settings)
     {
       $('#agenda-listrange').val(fc.fullCalendar('option', 'listRange'));
       $('#agenda-listsections').val(fc.fullCalendar('option', 'listSections'));
+      // PAMELA
+      $('#agenda-listsort').val(fc.fullCalendar('option', 'listSort'));
     }
 
 
@@ -3045,6 +3049,28 @@ function rcube_calendar_ui(settings)
       }
       return false;
     };
+    
+    // MANTIS 3896: Partage public et protégé de l'agenda
+    this.calendar_check_feed_url = function(calendar)
+    {
+      var lock = rcmail.display_message(rcmail.get_label('loading'), 'loading');
+      rcmail.http_post('calendar', { action:'check_feed_url', c:{ id:calendar.id, checked:$('#checkpublicfeedurl').prop('checked') } }, lock);
+      return true;
+    };
+    // MANTIS 3896: Partage public et protégé de l'agenda
+    this.calendar_show_feed_url = function(calendar, url)
+    {
+      if (url) {
+        $('#calpublicfeedurl').val(url);
+        $("#checkpublicfeedurl").prop("checked", true);
+        this.calendars[calendar].feedcalendarurl = url;
+      }
+      else {
+        $('#calpublicfeedurl').val('');
+        $("#checkpublicfeedurl").prop("checked", false);
+        delete this.calendars[calendar].feedcalendarurl;
+      }
+    };
 
     this.calendar_delete = function(calendar)
     {
@@ -3269,6 +3295,20 @@ function rcube_calendar_ui(settings)
         $('#calfeedurl').val(calendar.feedurl).select();
         // PAMELA
         $('#calfreebusyurl').val(calendar.feedfreebusyurl);
+        if (calendar.showfeedcalendarurl) {
+          if (calendar.feedcalendarurl) {
+            $('#calpublicfeedurl').val(calendar.feedcalendarurl);
+            $("#checkpublicfeedurl").prop("checked", true);
+          }
+          else {
+            $('#calpublicfeedurl').val('');
+            $("#checkpublicfeedurl").prop("checked", false);
+          }
+          $('#ppublicfeedurl').show();
+        }
+        else {
+          $('#ppublicfeedurl').hide();
+        }
       }
     };
 
@@ -3684,6 +3724,8 @@ function rcube_calendar_ui(settings)
         rcmail.enable_command('calendar-remove', me.calendars[node.id] && me.calendars[node.id].removable);
         // MANTIS 3607: Permettre de remplacer tous les évènements lors d'un import
         rcmail.enable_command('calendar-delete-all', true);
+        // MANTIS 3896: Partage public et protégé de l'agenda
+        rcmail.enable_command('calendar-check-feed-url', true);
       }
     });
     calendars_list.addEventListener('insert-item', function(p) {
@@ -4278,6 +4320,13 @@ function rcube_calendar_ui(settings)
         fc.fullCalendar('option', 'listSections', settings['agenda_sections']).fullCalendar('render');
         // TODO: save new settings in prefs
       }).val(fc.fullCalendar('option', 'listSections'));
+      
+      // PAMELA
+      $('#agenda-listsort').change(function(e){
+        settings['agenda_sort'] = $(this).val();
+        fc.fullCalendar('option', 'listSort', settings['agenda_sort']).fullCalendar('render');
+        // TODO: save new settings in prefs
+      }).val(fc.fullCalendar('option', 'listSort'));
 
       // hide event dialog when clicking somewhere into document
       $(document).bind('mousedown', dialog_check);
@@ -4313,6 +4362,9 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   // configure toolbar buttons
   rcmail.register_command('addevent', function(){ cal.add_event(); }, true);
   rcmail.register_command('print', function(){ cal.print_calendars(); }, true);
+  
+  // PAMELA - MANTIS 0004466: Ajouter un bouton pour rafraichir l'agenda
+  rcmail.register_command('refreshcalendar', function(){ rcmail.refresh(); }, true);
 
   // configure list operations
   rcmail.register_command('calendar-create', function(){ cal.calendar_edit_dialog(null); }, true);
@@ -4327,6 +4379,10 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   
   // MANTIS 3607: Permettre de remplacer tous les évènements lors d'un import
   rcmail.register_command('calendar-delete-all', function(){ cal.calendar_delete_all(cal.calendars[cal.selected_calendar]); }, false);
+  
+  // MANTIS 3896: Partage public et protégé de l'agenda
+  rcmail.register_command('calendar-check-feed-url', function(){ cal.calendar_check_feed_url(cal.calendars[cal.selected_calendar]); }, false);
+  rcmail.addEventListener('plugin.show_feed_url', function(p){ cal.calendar_show_feed_url(p.id, p.url); });
 
   // search and export events
   rcmail.register_command('export', function(){ cal.export_events(cal.calendars[cal.selected_calendar]); }, true);

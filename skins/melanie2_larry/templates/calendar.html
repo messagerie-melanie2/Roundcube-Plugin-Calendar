@@ -15,6 +15,8 @@
 	<div id="calendarsidebar">
 		<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
 		<div id="calendartoolbar" class="toolbar" role="toolbar" aria-labelledby="aria-label-toolbar">
+			<!-- PAMELA - MANTIS 0004466: Ajouter un bouton pour rafraichir l'agenda -->
+			<roundcube:button command="refreshcalendar" type="link" class="button refreshcalendar disabled" classAct="button refreshcalendar" classSel="button refreshcalendar pressed" label="refresh" title="refresh" />
 			<roundcube:button command="addevent" type="link" class="button addevent disabled" classAct="button addevent" classSel="button addevent pressed" label="calendar.new_event" title="calendar.new_event" />
 			<roundcube:button command="print" type="link" class="button print disabled" classAct="button print" classSel="button print pressed" label="calendar.print" title="calendar.printtitle" />
 			<roundcube:button command="events-import" type="link" class="button import disabled" classAct="button import" classSel="button import pressed" label="import" title="calendar.importevents" />
@@ -79,7 +81,7 @@
 		<roundcube:if condition="env:calendar_driver == 'kolab'" />
 		<li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
 		<roundcube:endif />
-    <!--  PAMELA -->
+    <!-- PAMELA -->
     <roundcube:container name="calendaroptionsmenu" id="calendargroupoptionsmenu" />
 	</ul>
 </div>
@@ -361,6 +363,13 @@
 	<!-- PAMELA -->
   <p><roundcube:label name="calendar.freebusyurldescription" /></p>
   <textarea id="calfreebusyurl" rows="2" readonly="readonly"></textarea>
+  <div id="ppublicfeedurl">
+	  <p><label>
+	    <input type="checkbox" id="checkpublicfeedurl" name="checkpublicfeedurl" value="1" onclick="rcmail.command('calendar-check-feed-url')" >
+	    <roundcube:label name="calendar.calendarfeedurldescription" />
+	  </label></p>
+	  <textarea id="calpublicfeedurl" rows="2" readonly="readonly"></textarea>
+  </div>
 	<div id="calendarcaldavurl" style="display:none">
 		<p><roundcube:label name="calendar.caldavurldescription" html="yes" /></p>
 		<textarea id="caldavurl" rows="2" readonly="readonly"></textarea>

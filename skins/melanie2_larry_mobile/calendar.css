@@ -476,9 +476,10 @@ a.miniColors-trigger {
 }
 
 .event-attendees span.attendee {
-	padding-right: 18px;
+	padding-left: 18px;
+	padding-bottom: 1px;
 	margin-right: 0.5em;
-	background: url(images/attendee-status.gif) right 0 no-repeat;
+	background: url(images/attendee-status.gif) left 0 no-repeat;
 }
 
 .event-attendees span.attendee a.mailtolink {
@@ -492,19 +493,19 @@ a.miniColors-trigger {
 }
 
 .event-attendees span.accepted {
-	background-position: right -20px;
+	background-position: left -20px;
 }
 
 .event-attendees span.declined {
-	background-position: right -40px;
+	background-position: left -40px;
 }
 
 .event-attendees span.tentative {
-	background-position: right -60px;
+	background-position: left -60px;
 }
 
 .event-attendees span.organizer {
-	background-position: right -80px;
+	background-position: left -80px;
 }
 
 #all-event-attendees span.attendee {

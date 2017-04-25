@@ -103,7 +103,9 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     },
     listSections: rcmail.env.listSections !== undefined ? rcmail.env.listSections : settings['agenda_sections'],
     listRange: rcmail.env.listRange || settings['agenda_range'],
-    tableCols: ['handle', 'date', 'time', 'title', 'location'],
+    // PAMELA - Tri des événements par le nom du calendrier
+    listSort: settings.agenda_sort,
+    tableCols: ['handle', 'calendar-name', 'date', 'time', 'title', 'location'],
     allDayText: rcmail.gettext('all-day', 'calendar'),
     buttonText: {
       day: rcmail.gettext('day', 'calendar'),

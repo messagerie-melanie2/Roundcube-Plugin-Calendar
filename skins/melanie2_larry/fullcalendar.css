@@ -33,6 +33,7 @@ html .fc,
 
 .fc-header td {
 	white-space: nowrap;
+	padding-left: 45px; /** PAMELA - MANTIS 0004466: Ajouter un bouton pour rafraichir l'agenda **/
 	}
 
 .fc-header-left {

@@ -79,9 +79,18 @@ body, td, th, div, p, h3, select, input, textarea {
 	padding-bottom: 1em;
 }
 
-#calendarlist input,
-#calendarlist .handle {
+#calendarlist input/*,
+MANTIS 0004215: Modification vue Ordre du jour
+#calendarlist .handle*/ {
 	display: none;
+}
+
+/* MANTIS 0004215: Modification vue Ordre du jour */
+#calendarlist .handle {
+	width: 10px;
+	display: inline-block;
+	margin-left: 3px;
+	border-radius: 2px;
 }
 
 #calendarlist li.x-invitations div {
@@ -116,11 +125,12 @@ body, td, th, div, p, h3, select, input, textarea {
 	overflow: visible;
 }
 
+/* MANTIS 0004215: Modification vue Ordre du jour
 .fc-event-skin,
 .fc-event-skin .fc-event-inner {
-	color: black !important;
-	background-color: #fff !important;
-}
+	color: black;
+	background-color: #fff;
+}*/
 
 .fc-event-title {
 	font-weight: bold;
@@ -220,8 +230,12 @@ body, td, th, div, p, h3, select, input, textarea {
 	font-style: italic;
 }
 
+/* MANTIS 0004215: Modification vue Ordre du jour */ 
+.fc-view-agendaDay .fc-event-inner,
+.fc-view-agendaWeek .fc-event-inner,
 .fc-view-month .fc-event-hori .fc-event-inner {
 	background: #fff !important;
+	color: #000 !important;
 }
 
 .fc-view-table col.fc-event-location {

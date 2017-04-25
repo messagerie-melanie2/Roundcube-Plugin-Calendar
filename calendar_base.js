@@ -113,6 +113,31 @@ function rcube_calendar(settings)
             // _calendar: $('#calendar-attachment-saveto').val(),
           }, rcmail.set_busy(true, 'itip.savingdata'));
       }
+    };
+    
+    // PAMELA - Add event function
+    this.add_event_from_shortcut = function() {
+      // load calendar UI (scripts and edit dialog template)
+      if (!this.ui_loaded) {
+        $.when(
+            $.getScript(rcmail.assets_path('plugins/calendar/calendar_ui.js')),
+            $.getScript(rcmail.assets_path('plugins/calendar/lib/js/fullcalendar.js')),
+            $.get(rcmail.url('calendar/inlineui'), function(html){ $(document.body).append(html); }, 'html')
+          ).then(function() {           
+            me.ui_loaded = true;
+            me.ui = new rcube_calendar_ui(me.settings);
+            me.add_event_from_shortcut();  // start over
+          });
+        return;
+      }
+      else {
+        setTimeout(function() {
+          event = {};
+          me.ui.add_event(event);
+          if (rcmail.message_list)
+            rcmail.message_list.blur();
+        }, 200);
+      }
     }
 }
 
@@ -145,6 +170,12 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         }
       });
     }
+    
+    if (rcmail.env.task == 'mail' || rcmail.env.task == 'addressbook') {
+      // PAMELA - Add event every where from shortcut
+      rcmail.register_command('add-event-from-shortcut', function() { cal.add_event_from_shortcut(); }, true);
+    }
+    
   }
 
   rcmail.register_command('plugin.calendar', function() { rcmail.switch_task('calendar'); }, true);

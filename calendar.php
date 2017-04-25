@@ -51,6 +51,8 @@ class calendar extends rcube_plugin
     'calendar_work_end'     => 18,
     'calendar_agenda_range' => 60,
     'calendar_agenda_sections' => 'smart',
+    // PAMELA - Tri des événements par le nom du calendrier
+    'calendar_agenda_sort' => 'calendar-name',
     'calendar_event_coloring'  => 0,
     'calendar_time_indicator'  => true,
     'calendar_allow_invite_shared' => false,
@@ -788,6 +790,23 @@ class calendar extends rcube_plugin
       case "delete_all":
         $success = $this->driver->delete_all_events($cal);
         $reload = true;
+        break;
+      // MANTIS 3896: Partage public et protégé de l'agenda
+      case "check_feed_url":
+        if ($cal['checked'] == 'true') {
+          $result = $this->driver->add_calendar_public_key($cal['id'], base64_encode(uniqid($cal['id'].'_calhashkey_')));
+        }
+        else {
+          $result = $this->driver->delete_calendar_public_key($cal['id']);
+        }
+        if ($result) {
+          $this->rc->output->command('plugin.show_feed_url', array('id' => $cal['id'], 'url' => $this->get_feed_url($cal['id'])));
+          return;
+        }
+        else {
+          $this->rc->output->show_message($this->gettext('errorsaving'), 'error');
+          return;
+        }
         break;
       case "subscribe":
         if (!$this->driver->subscribe_calendar($cal))
@@ -1692,6 +1711,8 @@ class calendar extends rcube_plugin
     $settings['work_end'] = (int)$this->rc->config->get('calendar_work_end', $this->defaults['calendar_work_end']);
     $settings['agenda_range'] = (int)$this->rc->config->get('calendar_agenda_range', $this->defaults['calendar_agenda_range']);
     $settings['agenda_sections'] = $this->rc->config->get('calendar_agenda_sections', $this->defaults['calendar_agenda_sections']);
+    // PAMELA - Tri des événements par le nom du calendrier
+    $settings['agenda_sort'] = $this->rc->config->get('calendar_agenda_sort', $this->defaults['calendar_agenda_sort']);
     $settings['event_coloring'] = (int)$this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring']);
     $settings['time_indicator'] = (int)$this->rc->config->get('calendar_time_indicator', $this->defaults['calendar_time_indicator']);
     $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', $this->defaults['calendar_allow_invite_shared']);
@@ -3296,6 +3317,36 @@ class calendar extends rcube_plugin
     // PAMELA - Nouvelle URL
     $url = '/public/freebusy/';
     $delm = '?';
+
+    foreach ($param as $key => $val) {
+      if ($val !== '' && $val !== null) {
+        $par  = $key;
+        $url .= $delm.urlencode($par).'='.urlencode($val);
+        $delm = '&';
+      }
+    }
+
+    return rcube_utils::resolve_url($url);
+  }
+
+  /**
+   * PAMELA - Build an absolute URL with the given parameters
+   */
+  public function get_feed_url($calendar)
+  {
+    // Récupération de la clé
+    $_hashkey = $this->driver->get_calendar_public_key($calendar);
+    if (!isset($_hashkey)) {
+      // Pas de clé, donc pas d'url publique
+      return null;
+    }
+
+    // PAMELA - Nouvelle URL
+    $url = '/public/feed/';
+    $delm = '?';
+    $_cal = $this->ical_feed_hash($calendar) . '.ics';
+
+    $param = array('_cal' => $_cal, '_key' => $_hashkey);
 
     foreach ($param as $key => $val) {
       if ($val !== '' && $val !== null) {

@@ -176,9 +176,9 @@ class calendar_ui
         $css .= ".fc-event-$class .fc-event-skin, ";
         $css .= ".fc-event-$class .fc-event-inner {";
         if (!$attrib['printmode'])
-            $css .= " background-color: #$color;";
-        $css .= " border-color: #$color;";
-        $css .= " color: $text_color;";
+            $css .= " background-color: #$color !important;";
+        $css .= " border-color: #$color !important;";
+        $css .= " color: $text_color !important;";
         $css .= "}\n";
         $css .= ".$class .handle { background-color: #$color; }";
 
@@ -211,8 +211,8 @@ class calendar_ui
               $css .= ".fc-event-$class, ";
               $css .= ".fc-event-$class .fc-event-skin, ";
               $css .= ".fc-event-$class .fc-event-inner {";
-              $css .= " background-color: #" . $color . ";";
-              $css .= " color: $text_color;";
+              $css .= " background-color: #" . $color . " !important;";
+              $css .= " color: $text_color !important;";
               $css .= "}\n";
 
               // Inverser la couleur des icones si on est en black
@@ -247,27 +247,27 @@ class calendar_ui
               $css .= ".fc-event-$class .fc-event-bg {";
               $css .= " opacity: 0.9;";
               $css .= " filter: alpha(opacity=90);";
-              $css .= " background-color: #" . $color . ";";
-              $css .= " color: $text_color;";
+              $css .= " background-color: #" . $color . " !important;";
+              $css .= " color: $text_color !important;";
               $css .= "}\n";
               $css .= ".fc-event-$class.fc-event-hori .fc-event-inner {";
-              $css .= " background-color: #" . $color . ";";
-              $css .= " color: $text_color;";
+              $css .= " background-color: #" . $color . " !important;";
+              $css .= " color: $text_color !important;";
               $css .= "}\n";
               $css .= ".fc-event-$class.fc-event-vert .fc-event-title {";
-              $css .= " color: $text_color;";
+              $css .= " color: $text_color !important;";
               $css .= "}\n";
           }
           else if ($mode == 3) {
               $css .= ".fc-event-$class, ";
               $css .= ".fc-event-$class .fc-event-skin, ";
               $css .= ".fc-event-$class .fc-event-inner {";
-              $css .= " border-color: #" . $color . ";";
+              $css .= " border-color: #" . $color . " !important;";
               $css .= "}\n";
               $css .= ".fc-event-$class.fc-event-vert .fc-event-head { ";
-              $css .= " background-color: #" . $color . ";";
-              $css .= " border-color: #" . $color . ";";
-              $css .= " color: $text_color;";
+              $css .= " background-color: #" . $color . " !important;";
+              $css .= " border-color: #" . $color . " !important;";
+              $css .= " color: $text_color !important;";
               $css .= "}\n";
 
               // Inverser la couleur des icones si on est en black
@@ -405,6 +405,14 @@ class calendar_ui
       // PAMELA
       $prop['feedurl']     = $this->cal->get_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics'));
       $prop['feedfreebusyurl'] = $this->cal->get_freebusy_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics'));
+      if ($prop['owner'] == $this->cal->rc->get_user_name()) {
+        $prop['showfeedcalendarurl'] = true;
+        $prop['feedcalendarurl'] = $this->cal->get_feed_url($id);
+      }
+      else {
+        $prop['showfeedcalendarurl'] = false;
+        $prop['feedcalendarurl'] = null;
+      }
 
       $jsenv[$id] = $prop;
     }
@@ -468,6 +476,15 @@ class calendar_ui
     $html .= html::span('spacer', '&nbsp;');
     $html .= html::label('agenda-listsections', $this->cal->gettext('listsections'));
     $html .= $select_sections->show($this->rc->config->get('calendar_agenda_sections', $this->cal->defaults['calendar_agenda_sections']));
+
+    // PAMELA - Tri des événements par le nom du calendrier
+    $select_sort = new html_select(array('name' => 'listsort', 'id' => 'agenda-listsort'));
+    foreach(array('date' => 'calendar.date', 'calendar-name' => 'calendar.calendar_name') as $val => $label)
+      $select_sort->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
+
+    $html .= html::span('spacer', '&nbsp;');
+    $html .= html::label('agenda-listsort', $this->cal->gettext('listsort'));
+    $html .= $select_sort->show($this->rc->config->get('calendar_agenda_sort', $this->cal->defaults['calendar_agenda_sort']));
 
     return html::div($attrib, $html);
   }

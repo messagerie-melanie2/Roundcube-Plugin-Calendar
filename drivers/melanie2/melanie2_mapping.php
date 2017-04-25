@@ -25,7 +25,7 @@
 if (! defined('CONFIGURATION_APP_LIBM2')) {
   define('CONFIGURATION_APP_LIBM2', 'roundcube');
 }
-include_once 'includes/libm2.php';
+@include_once 'includes/libm2.php';
 
 /**
  * Classe de mapping vers Melanie2 (vers la librairie ORM M2)

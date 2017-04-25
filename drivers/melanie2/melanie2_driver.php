@@ -24,7 +24,7 @@ if (! defined('CONFIGURATION_APP_LIBM2')) {
   define('CONFIGURATION_APP_LIBM2', 'roundcube');
 }
 // Inclusion de l'ORM
-require_once 'includes/libm2.php';
+@include_once 'includes/libm2.php';
 
 require_once (dirname(__FILE__) . '/melanie2_mapping.php');
 
@@ -284,7 +284,9 @@ class melanie2_driver extends calendar_driver {
                 'editable' => $cal->asRight(LibMelanie\Config\ConfigMelanie::WRITE),
                 'rights' => $rights,
                 'group' => trim(($cal->owner == $this->user->uid ? 'personnal' : 'shared') . ' ' . ($default_calendar->id == $cal->id ? 'default' : '')),
-                'class' => 'user')
+                'class' => 'user',
+        				'caldavurl' => $this->get_caldav_url($cal),
+        )
         // 'subscribed' => !isset($hidden_calendars[$cal->id]),
         // TODO: Implémenter la gestion des afficher/masquer un agenda
         // 'removable' => $default_calendar->id != $cal->id,
@@ -314,7 +316,7 @@ class melanie2_driver extends calendar_driver {
         $prefs = $this->rc->config->get('birthday_calendar', array('color' => '87CEFA'));
 
         $id = self::BIRTHDAY_CALENDAR_ID;
-        if (! $active || ! in_array($id, $hidden)) {
+        if (! $active || ! in_array($id, $hidden_calendars)) {
           $owner_calendars[$id] = array('id' => $id,'name' => $this->cal->gettext('birthdays'),'listname' => $this->cal->gettext('birthdays'),'color' => $prefs['color'],'showalarms' => ( bool ) $this->rc->config->get('calendar_birthdays_alarm_type'),'active' => isset($active_calendars[$id]),'group' => 'x-birthdays','editable' => false,'default' => false,'children' => false);
         }
       }
@@ -658,7 +660,7 @@ class melanie2_driver extends calendar_driver {
       // Génère l'évènement
       $_event = new LibMelanie\Api\Melanie2\Event($this->user, $this->calendars[$event['calendar']]);
       // Calcul de l'uid de l'évènment
-      if (isset($event['uid'])) {
+      if (isset($event['uid']) && !empty($event['uid'])) {
         $_event->uid = $event['uid'];
       }
       elseif (isset($event['id'])) {
@@ -669,6 +671,9 @@ class melanie2_driver extends calendar_driver {
         }
         else if (strpos($id, self::RECURRENCE_ID) !== false) {
           $id = substr($id, 0, strlen($id) - strlen(self::RECURRENCE_DATE . self::RECURRENCE_ID));
+          if (!isset($event['_savemode'])) {
+            $event['_savemode'] = 'current';
+          }
         }
         $_event->uid = $id;
         $event['uid'] = $id;
@@ -863,6 +868,9 @@ class melanie2_driver extends calendar_driver {
         }
         else if (strpos($id, self::RECURRENCE_ID) !== false) {
           $id = substr($id, 0, strlen($id) - strlen(self::RECURRENCE_DATE . self::RECURRENCE_ID));
+          if (!isset($event['_savemode'])) {
+            $event['_savemode'] = 'current';
+          }
         }
         $_event->uid = $id;
         $event['uid'] = $id;
@@ -952,7 +960,7 @@ class melanie2_driver extends calendar_driver {
             $event['allday'] = $e['allday'];
           }
           // Converti les données de l'évènement en évènement Mélanie2
-          $_event = $this->_write_postprocess($_event, $event, false);
+          $_event = $this->_write_postprocess($_event, $event, false, true);
         }
         if ($_event->save() !== null) {
           return $_event->uid;
@@ -995,7 +1003,7 @@ class melanie2_driver extends calendar_driver {
    * @param boolean $new
    * @return LibMelanie\Api\Melanie2\Event $_event
    */
-  private function _write_postprocess(LibMelanie\Api\Melanie2\Event $_event, $event, $new) {
+  private function _write_postprocess(LibMelanie\Api\Melanie2\Event $_event, $event, $new, $move = false) {
     // Gestion du timezone
     //$timezone = new \DateTimeZone($this->calendars[$_event->calendar]->getTimezone());
     $timezone = $this->cal->timezone;
@@ -1027,38 +1035,40 @@ class melanie2_driver extends calendar_driver {
     if ($new) {
       $_event->owner = $this->user->uid;
     }
-    if (isset($event['title'])) {
-      $_event->title = strval($event['title']);
-    }
-    if (isset($event['description'])) {
-      $_event->description = strval($event['description']);
-    }
-    if (isset($event['location'])) {
-      $_event->location = strval($event['location']);
-    }
-    if (isset($event['categories'])) {
-      if (is_array($event['categories'])) {
-        $_event->category = implode(',',$event['categories']);
+    if (!$move) {
+      if (isset($event['title'])) {
+        $_event->title = strval($event['title']);
+      }
+      if (isset($event['description'])) {
+        $_event->description = strval($event['description']);
+      }
+      if (isset($event['location'])) {
+        $_event->location = strval($event['location']);
+      }
+      if (isset($event['categories'])) {
+        if (is_array($event['categories'])) {
+          $_event->category = implode(',',$event['categories']);
+        }
+        else {
+          $_event->category = strval($event['categories']);
+        }
+      }
+      // TODO: alarm
+      if (isset($event['alarms'])) {
+        $valarm = explode(':', $event['alarms']);
+        if (isset($valarm[0])) {
+          $_event->alarm = melanie2_mapping::valarm_ics_to_minutes_trigger($valarm[0]);
+        }
+      }
+      // Utilisation du valarms
+      if (isset($event['valarms'])) {
+        if (isset($event['valarms'][0]) && isset($event['valarms'][0]['trigger']) && isset($event['valarms'][0]['action']) && $event['valarms'][0]['action'] == 'DISPLAY') {
+          $_event->alarm = melanie2_mapping::valarm_ics_to_minutes_trigger($event['valarms'][0]['trigger']);
+        }
       }
       else {
-        $_event->category = strval($event['categories']);
+        $_event->alarm = 0;
       }
-    }
-    // TODO: alarm
-    if (isset($event['alarms'])) {
-      $valarm = explode(':', $event['alarms']);
-      if (isset($valarm[0])) {
-        $_event->alarm = melanie2_mapping::valarm_ics_to_minutes_trigger($valarm[0]);
-      }
-    }
-    // Utilisation du valarms
-    if (isset($event['valarms'])) {
-      if (isset($event['valarms'][0]) && isset($event['valarms'][0]['trigger']) && isset($event['valarms'][0]['action']) && $event['valarms'][0]['action'] == 'DISPLAY') {
-        $_event->alarm = melanie2_mapping::valarm_ics_to_minutes_trigger($event['valarms'][0]['trigger']);
-      }
-    }
-    else {
-      $_event->alarm = 0;
     }
     // TODO: recurrence
     if (isset($event['recurrence']) && get_class($_event) != 'LibMelanie\Api\Melanie2\Exception') {
@@ -1159,6 +1169,9 @@ class melanie2_driver extends calendar_driver {
         }
         else if (strpos($id, self::RECURRENCE_ID) !== false) {
           $id = substr($id, 0, strlen($id) - strlen(self::RECURRENCE_DATE . self::RECURRENCE_ID));
+          if (!isset($event['_savemode'])) {
+            $event['_savemode'] = 'current';
+          }
         }
         $_event->uid = $id;
       }
@@ -1500,7 +1513,9 @@ class melanie2_driver extends calendar_driver {
       else {
         $events = array();
         foreach ($calendars as $calendar) {
-          $events = array_merge($events, $this->calendars[$calendar]->getRangeEvents(date("Y-m-d H:i:s", $start), date("Y-m-d H:i:s", $end), $modifiedsince));
+          if (isset($this->calendars[$calendar])) {
+            $events = array_merge($events, $this->calendars[$calendar]->getRangeEvents(date("Y-m-d H:i:s", $start), date("Y-m-d H:i:s", $end), $modifiedsince));
+          }
         }
       }
       $_events = array();
@@ -1593,6 +1608,22 @@ class melanie2_driver extends calendar_driver {
   }
 
   /**
+   * Retourne un nom de calendrier plus court si besoin
+   * @param string $calendar_name
+   * @return string
+   */
+  private function _format_calendar_name($calendar_name) {
+    if (strpos($calendar_name, ' - ') !== false) {
+      $calendar_name = explode(' - ', $calendar_name);
+      $calendar_name = $calendar_name[0];
+    }
+    if (strlen($calendar_name) > 200) {
+      $calendar_name = substr($calendar_name, 0, 200);
+    }
+    return $calendar_name;
+  }
+
+  /**
    * Convert sql record into a rcube style event object
    *
    * @param LibMelanie\Api\Melanie2\Event $event
@@ -1604,6 +1635,7 @@ class melanie2_driver extends calendar_driver {
 
     $_event['id'] = $event->uid;
     $_event['uid'] = $event->uid;
+    $_event['calendar-name'] = $this->_format_calendar_name($this->calendars[$event->calendar]->name);
 
     // Evenement supprimé
     if ($event->deleted) {
@@ -1676,7 +1708,6 @@ class melanie2_driver extends calendar_driver {
       // Evenement privé
       if ($is_private) {
         $_event['title'] = $this->rc->gettext('event private', 'calendar');
-        ;
       }
       // Freebusy
       else if ($is_freebusy) {
@@ -1714,7 +1745,7 @@ class melanie2_driver extends calendar_driver {
           foreach ($attendees as $attendee) {
             $_event_attendee = array();
             $_event_attendee['name'] = $attendee->name;
-            $_event_attendee['email'] = $attendee->email;
+            $_event_attendee['email'] = strtolower($attendee->email);
             // role
             $_event_attendee['role'] = melanie2_mapping::m2_to_rc_attendee_role($attendee->role);
             // status
@@ -1724,7 +1755,7 @@ class melanie2_driver extends calendar_driver {
           $organizer = $event->organizer;
           if (isset($organizer)) {
             $_event_organizer = array();
-            $_event_organizer['email'] = $organizer->email;
+            $_event_organizer['email'] = strtolower($organizer->email);
             $_event_organizer['name'] = $organizer->name;
             $_event_organizer['role'] = 'ORGANIZER';
             $_attendees[] = $_event_organizer;
@@ -2239,6 +2270,91 @@ class melanie2_driver extends calendar_driver {
   }
 
   /**
+   * Récupération de la clé de partage pour le calendrier
+   * @param string $calendar
+   * @return string|NULL
+   */
+  public function get_calendar_public_key($calendar) {
+    $result = null;
+    $calendar = $this->_to_M2_id($calendar);
+
+    // Définition de l'utilisateur
+    $user = new LibMelanie\Api\Melanie2\User();
+    $user->uid = $this->rc->get_user_name();
+
+    // On récupère la clé avec la valeur des paramètres utilisateurs
+    $pref = new LibMelanie\Api\Melanie2\UserPrefs($user);
+    $pref->name = "calendarskeyhash";
+    $pref->scope = LibMelanie\Config\ConfigMelanie::CALENDAR_PREF_SCOPE;
+
+    if ($pref->load()) {
+      $value = unserialize($pref->value);
+      if (isset($value[$calendar])) {
+        $result = $value[$calendar];
+      }
+    }
+
+    return $result;
+  }
+
+  /**
+   * Création de la clé pour le calendrier pour le partage public
+   * @param string $calendar
+   * @param string $key
+   */
+  public function add_calendar_public_key($calendar, $key) {
+    $calendar = $this->_to_M2_id($calendar);
+
+    // On compare la clé avec la valeur des paramètres utilisateurs
+    $pref = new LibMelanie\Api\Melanie2\UserPrefs();
+    $pref->user = $this->rc->get_user_name();
+    $pref->name = "calendarskeyhash";
+    $pref->scope = LibMelanie\Config\ConfigMelanie::CALENDAR_PREF_SCOPE;
+
+    if ($pref->load()) {
+      $value = unserialize($pref->value);
+      $value[$calendar] = $key;
+    }
+    else {
+      $value = array($calendar => $key);
+    }
+    // Enregistrement de la valeur de pref
+    $pref->value = serialize($value);
+    $ret = $pref->save();
+
+    // Retourne le résultat
+    return !is_null($ret);
+  }
+
+  /**
+   * Suppression de la clé pour le calendrier pour le partage public
+   * @param string $calendar
+   */
+  public function delete_calendar_public_key($calendar) {
+    $calendar = $this->_to_M2_id($calendar);
+
+    // On compare la clé avec la valeur des paramètres utilisateurs
+    $pref = new LibMelanie\Api\Melanie2\UserPrefs();
+    $pref->user = $this->rc->get_user_name();
+    $pref->name = "calendarskeyhash";
+    $pref->scope = LibMelanie\Config\ConfigMelanie::CALENDAR_PREF_SCOPE;
+
+    if ($pref->load()) {
+      $value = unserialize($pref->value);
+      if (isset($value[$calendar])) {
+        unset($value[$calendar]);
+        // Enregistrement de la valeur de pref
+        $pref->value = serialize($value);
+        $ret = $pref->save();
+
+        // Retourne le résultat
+        return !is_null($ret);
+      }
+    }
+    return true;
+  }
+
+  /**
    * List availabale categories
    * The default implementation reads them from config/user prefs
    */
@@ -2634,6 +2750,26 @@ class melanie2_driver extends calendar_driver {
     $this->rc->output->add_handler('folderacl', array(new M2calendargroup($this->rc->user->get_username()),'acl_form'));
     $this->rc->output->send('calendar.kolabacl');
   }
+  
+  /**
+   * Compose an URL for CalDAV access to this calendar (if configured)
+   * 
+   * @param \LibMelanie\Api\Melanie2\Calendar $calendar
+   */
+  private function get_caldav_url($calendar)
+  {
+  	if ($template = $this->rc->config->get('calendar_caldav_url', null)) {
+  		return strtr($template, array(
+  				'%h' => $_SERVER['HTTP_HOST'],
+  				'%u' => urlencode($this->rc->get_user_name()),
+  				'%i' => urlencode($calendar->id),
+  				'%n' => urlencode($calendar->owner),
+  		));
+  	}
+  	
+  	return false;
+  }
+  
   /**
    * Converti l'id en identifiant utilisable par RC
    *

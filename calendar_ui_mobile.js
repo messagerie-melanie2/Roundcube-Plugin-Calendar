@@ -118,7 +118,9 @@ function rcube_calendar_ui(settings)
       listPage: 7,  // advance one week in agenda view
       listRange: settings.agenda_range,
       listSections: settings.agenda_sections,
-      tableCols: ['handle', 'date', 'time', 'title', 'location'],
+      // PAMELA - Tri des événements par le nom du calendrier
+      listSort: settings.agenda_sort,
+      tableCols: ['handle', 'calendar-name', 'date', 'time', 'title', 'location'],
       defaultView: rcmail.env.view || settings.default_view,
       allDayText: rcmail.gettext('all-day', 'calendar'),
       buttonText: {
@@ -2647,6 +2649,8 @@ function rcube_calendar_ui(settings)
     {
       $('#agenda-listrange').val(fc.fullCalendar('option', 'listRange'));
       $('#agenda-listsections').val(fc.fullCalendar('option', 'listSections'));
+      // PAMELA
+      $('#agenda-listsort').val(fc.fullCalendar('option', 'listSort'));
     }
 
 
@@ -4185,6 +4189,13 @@ function rcube_calendar_ui(settings)
         fc.fullCalendar('option', 'listSections', settings['agenda_sections']).fullCalendar('render');
         // TODO: save new settings in prefs
       }).val(fc.fullCalendar('option', 'listSections'));
+      
+      // PAMELA
+      $('#agenda-listsort').change(function(e){
+        settings['agenda_sort'] = $(this).val();
+        fc.fullCalendar('option', 'listSort', settings['agenda_sort']).fullCalendar('render');
+        // TODO: save new settings in prefs
+      }).val(fc.fullCalendar('option', 'listSort'));
 
       // hide event dialog when clicking somewhere into document
       $(document).bind('mousedown', dialog_check);
