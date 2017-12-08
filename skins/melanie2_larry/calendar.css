@@ -506,6 +506,7 @@ pre {
 	left: 0;
 	height: 40px;
 	white-space: nowrap;
+	z-index: 100;
 }
 
 #calendartoolbar a.button {

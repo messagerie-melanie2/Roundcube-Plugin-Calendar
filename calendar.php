@@ -103,7 +103,8 @@ class calendar extends rcube_plugin
       $this->add_hook('startup', array($this, 'startup'));
     }
 
-    $this->add_hook('user_delete', array($this, 'user_delete'));
+    // MANTIS 0004702: Bloquer l'utilisation de la table itipinvitation
+    //$this->add_hook('user_delete', array($this, 'user_delete'));
   }
 
   /**
@@ -2569,8 +2570,11 @@ class calendar extends rcube_plugin
     $savemode = rcube_utils::get_input_value('_savemode', rcube_utils::INPUT_POST);
 
     // search for event if only UID is given
-    if ($event = $this->driver->get_event(array('uid' => $uid, '_instance' => $instance), calendar_driver::FILTER_WRITEABLE)) {
+    // PAMELA - MANTIS 0004573: Suppression de ttes les occurrences pour les participants alors qu'une seule était supprimée
+    if ($event = $this->driver->get_event(array('uid' => $uid), calendar_driver::FILTER_WRITEABLE)) {
       $event['_savemode'] = $savemode;
+      // PAMELA
+      $event['_instance'] = $instance;
       $success = $this->driver->remove_event($event, true);
     }
 

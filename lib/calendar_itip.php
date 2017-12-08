@@ -60,14 +60,15 @@ class calendar_itip extends libcalendaring_itip
    */
   public function get_invitation($token)
   {
-    if ($parts = $this->decode_token($token)) {
-      $result = $this->rc->db->query("SELECT * FROM $this->db_itipinvitations WHERE `token` = ?", $parts['base']);
-      if ($result && ($rec = $this->rc->db->fetch_assoc($result))) {
-        $rec['event'] = unserialize($rec['event']);
-        $rec['attendee'] = $parts['attendee'];
-        return $rec;
-      }
-    }
+    // MANTIS 0004702: Bloquer l'utilisation de la table itipinvitation
+//     if ($parts = $this->decode_token($token)) {
+//       $result = $this->rc->db->query("SELECT * FROM $this->db_itipinvitations WHERE `token` = ?", $parts['base']);
+//       if ($result && ($rec = $this->rc->db->fetch_assoc($result))) {
+//         $rec['event'] = unserialize($rec['event']);
+//         $rec['attendee'] = $parts['attendee'];
+//         return $rec;
+//       }
+//     }
     
     return false;
   }
@@ -110,17 +111,18 @@ class calendar_itip extends libcalendaring_itip
           $this->rc->output->command('display_message', $this->plugin->gettext('itipresponseerror'), 'error');
       }
       
+      // MANTIS 0004702: Bloquer l'utilisation de la table itipinvitation
       // update record in DB
-      $query = $this->rc->db->query(
-        "UPDATE $this->db_itipinvitations
-         SET `event` = ?
-         WHERE `token` = ?",
-        self::serialize_event($invitation['event']),
-        $invitation['token']
-      );
+//       $query = $this->rc->db->query(
+//         "UPDATE $this->db_itipinvitations
+//          SET `event` = ?
+//          WHERE `token` = ?",
+//         self::serialize_event($invitation['event']),
+//         $invitation['token']
+//       );
 
-      if ($this->rc->db->affected_rows($query))
-        return true;
+//       if ($this->rc->db->affected_rows($query))
+//         return true;
     }
     
     return false;
@@ -136,39 +138,40 @@ class calendar_itip extends libcalendaring_itip
    */
   public function store_invitation($event, $attendee)
   {
-    static $stored = array();
+    // MANTIS 0004702: Bloquer l'utilisation de la table itipinvitation
+//     static $stored = array();
     
-    if (!$event['uid'] || !$attendee)
-      return false;
+//     if (!$event['uid'] || !$attendee)
+//       return false;
       
-    // generate token for this invitation
-    $token = $this->generate_token($event, $attendee);
-    $base = substr($token, 0, 40);
+//     // generate token for this invitation
+//     $token = $this->generate_token($event, $attendee);
+//     $base = substr($token, 0, 40);
     
-    // already stored this
-    if ($stored[$base])
-      return $token;
+//     // already stored this
+//     if ($stored[$base])
+//       return $token;
 
-    // delete old entry
-    $this->rc->db->query("DELETE FROM $this->db_itipinvitations WHERE `token` = ?", $base);
+//     // delete old entry
+//     $this->rc->db->query("DELETE FROM $this->db_itipinvitations WHERE `token` = ?", $base);
 
-    $event_uid = $event['uid'] . ($event['_instance'] ? '-' . $event['_instance'] : '');
+//     $event_uid = $event['uid'] . ($event['_instance'] ? '-' . $event['_instance'] : '');
 
-    $query = $this->rc->db->query(
-      "INSERT INTO $this->db_itipinvitations
-       (`token`, `event_uid`, `user_id`, `event`, `expires`)
-       VALUES(?, ?, ?, ?, ?)",
-      $base,
-      $event_uid,
-      $this->rc->user->ID,
-      self::serialize_event($event),
-      date('Y-m-d H:i:s', $event['end']->format('U') + 86400 * 2)
-    );
+//     $query = $this->rc->db->query(
+//       "INSERT INTO $this->db_itipinvitations
+//        (`token`, `event_uid`, `user_id`, `event`, `expires`)
+//        VALUES(?, ?, ?, ?, ?)",
+//       $base,
+//       $event_uid,
+//       $this->rc->user->ID,
+//       self::serialize_event($event),
+//       date('Y-m-d H:i:s', $event['end']->format('U') + 86400 * 2)
+//     );
     
-    if ($this->rc->db->affected_rows($query)) {
-      $stored[$base] = 1;
-      return $token;
-    }
+//     if ($this->rc->db->affected_rows($query)) {
+//       $stored[$base] = 1;
+//       return $token;
+//     }
     
     return false;
   }
@@ -180,16 +183,18 @@ class calendar_itip extends libcalendaring_itip
    */
   public function cancel_itip_invitation($event)
   {
-    $event_uid = $event['uid'] . ($event['_instance'] ? '-' . $event['_instance'] : '');
+    // MANTIS 0004702: Bloquer l'utilisation de la table itipinvitation
+//     $event_uid = $event['uid'] . ($event['_instance'] ? '-' . $event['_instance'] : '');
 
-    // flag invitation record as cancelled
-    $this->rc->db->query(
-      "UPDATE $this->db_itipinvitations
-       SET `cancelled` = 1
-       WHERE `event_uid` = ? AND `user_id` = ?",
-       $event_uid,
-       $this->rc->user->ID
-    );
+//     // flag invitation record as cancelled
+//     $this->rc->db->query(
+//       "UPDATE $this->db_itipinvitations
+//        SET `cancelled` = 1
+//        WHERE `event_uid` = ? AND `user_id` = ?",
+//        $event_uid,
+//        $this->rc->user->ID
+//     );
+    return false;
   }
 
   /**

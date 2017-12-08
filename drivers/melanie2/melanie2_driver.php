@@ -19,10 +19,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-// Configuration du nom de l'application pour l'ORM
-if (! defined('CONFIGURATION_APP_LIBM2')) {
-  define('CONFIGURATION_APP_LIBM2', 'roundcube');
-}
 // Inclusion de l'ORM
 @include_once 'includes/libm2.php';
 
@@ -740,16 +736,22 @@ class melanie2_driver extends calendar_driver {
           // Définition de la date de fin pour la récurrence courante
           $enddate = clone ($event['start']);
         }
-        $enddate->sub(new DateInterval('P1D'));
+        if ($enddate->getTimestamp() == strtotime($_event->start)) {
+            // Converti les données de l'évènement en évènement Mélanie2
+            $_event = $this->_write_postprocess($_event, $event, false);
+        }
+        else {
+            $enddate->sub(new DateInterval('P1D'));
 
-        $_event->recurrence->enddate = $enddate->format(self::DB_DATE_FORMAT);
-        $_event->recurrence->count = '';
-        $_event->save();
-        // Création de la nouvelle
-        $_event = new LibMelanie\Api\Melanie2\Event($this->user, $this->calendars[$event['calendar']]);
-        // Converti les données de l'évènement en évènement Mélanie2
-        $_event = $this->_write_postprocess($_event, $event, true);
-        $_event->uid = $event['uid'] . "-" . strtotime($event['start']->format(self::DB_DATE_FORMAT)) . '@future';
+            $_event->recurrence->enddate = $enddate->format(self::DB_DATE_FORMAT);
+            $_event->recurrence->count = '';
+            $_event->save();
+            // Création de la nouvelle
+            $_event = new LibMelanie\Api\Melanie2\Event($this->user, $this->calendars[$event['calendar']]);
+            // Converti les données de l'évènement en évènement Mélanie2
+            $_event = $this->_write_postprocess($_event, $event, true);
+            $_event->uid = $event['uid'] . "-" . strtotime($event['start']->format(self::DB_DATE_FORMAT)) . '@future';
+        }
       }
       else if (isset($event['_savemode']) && $event['_savemode'] == 'new') {
         $event['uid'] = $_event->uid;
@@ -1211,6 +1213,9 @@ class melanie2_driver extends calendar_driver {
             $recid = substr($id, strlen($id) - strlen(self::RECURRENCE_DATE . self::RECURRENCE_ID) + 1, - strlen(self::RECURRENCE_ID));
             $_exception->recurrenceId = $recid;
           }
+          else if (isset($event['_instance'])) {
+            $_exception->recurrenceId = substr($event['_instance'], 0, 8);
+          }
           else if ($event['start'] instanceof DateTime) {
             $_exception->recurrenceId = $event['start']->format(self::SHORT_DB_DATE_FORMAT);
           }
@@ -1321,7 +1326,7 @@ class melanie2_driver extends calendar_driver {
         if (isset($event['uid'])) {
           $_event->uid = $event['uid'];
           // Récupération d'une instance d'événement
-          if (isset($event['_instance']) && ! empty($event['_instance'])) {
+          if (isset($event['_instance']) && ! empty($event['_instance']) && (!isset($event['method']) || $event['method'] != 'CANCEL')) {
             $_event->uid .= '-' . substr($event['_instance'], 0, 8) . self::RECURRENCE_ID;
           }
         }
@@ -1329,6 +1334,9 @@ class melanie2_driver extends calendar_driver {
           $id = $event['id'];
           if (strpos($id, '@DATE-') !== false) {
             $id = explode('@DATE-', $id);
+            if (isset($event['_savemode']) && $event['_savemode'] == 'current') {
+              $_recurrence_date = $id[1];
+            }
             $id = $id[0];
           }
           else if (strpos($id, self::RECURRENCE_ID) !== false) {
@@ -1351,6 +1359,9 @@ class melanie2_driver extends calendar_driver {
           }
           if (isset($_identity)) {
             $event['_identity'] = $_identity;
+          }
+          if (isset($_recurrence_date)) {
+            $event['recurrence_date'] = rcube_utils::anytodatetime("@$_recurrence_date", $event['start']->getTimezone());
           }
 
           $attachments = ( array ) $this->list_attachments($_event);
@@ -2658,8 +2669,8 @@ class melanie2_driver extends calendar_driver {
       $form['props']['fieldsets']['settings'] = array('name' => $this->rc->gettext('settings'),'content' => array('color' => $formfields['color'],'showalarms' => $formfields['showalarms']));
 
       if ($action != 'form-new' && $cal->owner == $this->user->uid) {
-        $form['sharing'] = array('name' => Q($this->cal->gettext('tabsharing')),'content' => html::tag('iframe', array('src' => $this->cal->rc->url(array('_action' => 'calendar-acl','id' => $calendar['id'],'framed' => 1)),'width' => '100%','height' => 275,'border' => 0,'style' => 'border:0'), ''));
-        $form['groupsharing'] = array('name' => Q($this->cal->gettext('tabsharinggroup')),'content' => html::tag('iframe', array('src' => $this->cal->rc->url(array('_action' => 'calendar-acl-group','id' => $calendar['id'],'framed' => 1)),'width' => '100%','height' => 275,'border' => 0,'style' => 'border:0'), ''));
+        $form['sharing'] = array('name' => $this->Q($this->cal->gettext('tabsharing')),'content' => html::tag('iframe', array('src' => $this->cal->rc->url(array('_action' => 'calendar-acl','id' => $calendar['id'],'framed' => 1)),'width' => '100%','height' => 275,'border' => 0,'style' => 'border:0'), ''));
+        $form['groupsharing'] = array('name' => $this->Q($this->cal->gettext('tabsharinggroup')),'content' => html::tag('iframe', array('src' => $this->cal->rc->url(array('_action' => 'calendar-acl-group','id' => $calendar['id'],'framed' => 1)),'width' => '100%','height' => 275,'border' => 0,'style' => 'border:0'), ''));
       }
 
       $this->form_html = '';
@@ -2677,7 +2688,7 @@ class melanie2_driver extends calendar_driver {
           foreach ($tab['fieldsets'] as $fieldset) {
             $subcontent = $this->get_form_part($fieldset);
             if ($subcontent) {
-              $content .= html::tag('fieldset', null, html::tag('legend', null, Q($fieldset['name'])) . $subcontent) . "\n";
+              $content .= html::tag('fieldset', null, html::tag('legend', null, $this->Q($fieldset['name'])) . $subcontent) . "\n";
             }
           }
         }
@@ -2686,7 +2697,7 @@ class melanie2_driver extends calendar_driver {
         }
 
         if ($content) {
-          $this->form_html .= html::tag('fieldset', null, html::tag('legend', null, Q($tab['name'])) . $content) . "\n";
+          $this->form_html .= html::tag('fieldset', null, html::tag('legend', null, $this->Q($tab['name'])) . $content) . "\n";
         }
       }
 
@@ -2722,9 +2733,9 @@ class melanie2_driver extends calendar_driver {
       $table = new html_table(array('cols' => 2));
       foreach ($form['content'] as $col => $colprop) {
         $colprop['id'] = '_' . $col;
-        $label = ! empty($colprop['label']) ? $colprop['label'] : rcube_label($col);
+        $label = ! empty($colprop['label']) ? $colprop['label'] : $this->rc->gettext($col);
 
-        $table->add('title', sprintf('<label for="%s">%s</label>', $colprop['id'], Q($label)));
+        $table->add('title', sprintf('<label for="%s">%s</label>', $colprop['id'], $this->Q($label)));
         $table->add(null, $colprop['value']);
       }
       $content = $table->show();
@@ -2750,10 +2761,10 @@ class melanie2_driver extends calendar_driver {
     $this->rc->output->add_handler('folderacl', array(new M2calendargroup($this->rc->user->get_username()),'acl_form'));
     $this->rc->output->send('calendar.kolabacl');
   }
-  
+
   /**
    * Compose an URL for CalDAV access to this calendar (if configured)
-   * 
+   *
    * @param \LibMelanie\Api\Melanie2\Calendar $calendar
    */
   private function get_caldav_url($calendar)
@@ -2766,10 +2777,10 @@ class melanie2_driver extends calendar_driver {
   				'%n' => urlencode($calendar->owner),
   		));
   	}
-  	
+
   	return false;
   }
-  
+
   /**
    * Converti l'id en identifiant utilisable par RC
    *
@@ -2787,5 +2798,17 @@ class melanie2_driver extends calendar_driver {
    */
   private function _to_M2_id($id) {
     return str_replace('_-P-_', '.', $id);
+  }
+  /**
+   * Replacing specials characters to a specific encoding type
+   *
+   * @param string  Input string
+   * @param string  Replace mode for tags: show|remove|strict
+   * @param boolean Convert newlines
+   *
+   * @return string The quoted string
+   */
+  private function Q($str, $mode='strict', $newlines=true) {
+    return rcube_utils::rep_specialchars_output($str, 'html', $mode, $newlines);
   }
 }
