@@ -4,6 +4,7 @@ body {
 	margin: 0 0 1em 0;
 	color: #000;
 	background: #fff;
+	min-width: 0px;
 }
 
 body, td, th, div, p, h3, select, input, textarea {

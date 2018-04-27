@@ -175,10 +175,11 @@ class calendar_ui
         $css .= ".fc-event-$class, ";
         $css .= ".fc-event-$class .fc-event-skin, ";
         $css .= ".fc-event-$class .fc-event-inner {";
-        if (!$attrib['printmode'])
-            $css .= " background-color: #$color !important;";
-        $css .= " border-color: #$color !important;";
-        $css .= " color: $text_color !important;";
+        if (!$attrib['printmode']) {
+          $css .= " background-color: #$color !important;";
+          $css .= " color: $text_color !important;";
+        }           
+        $css .= " border-color: #$color !important;";        
         $css .= "}\n";
         $css .= ".$class .handle { background-color: #$color; }";
 
