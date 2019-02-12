@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the Roundcube Webmail Help package.
 # 
 # Translators:
+# Berta Narváez <bertanarvaez@hotmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: Kolab Documentation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-26 23:28+0100\n"
-"PO-Revision-Date: 2014-11-27 23:34+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Spanish (http://www.transifex.com/projects/p/kolab-documentation/language/es/)\n"
+"PO-Revision-Date: 2017-09-21 17:03+0000\n"
+"Last-Translator: Berta Narváez <bertanarvaez@hotmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/kolab/kolab-documentation/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,7 +20,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/sharing.rst:11
 msgid "Sharing Calendars"
-msgstr ""
+msgstr "Compartir calendarios"
 
 #: ../../en_US/_plugins/calendar/sharing.rst:13
 msgid ""
@@ -27,7 +28,7 @@ msgid ""
 ":ref:`overview <calendar-lists>`, we have already learned how calendars "
 "others share with you appear in the calendars list. The following now "
 "explains how to make personal calendars accessible to fellow users."
-msgstr ""
+msgstr "Para colaborar, compartir calendarios es una característica importante. En :ref: `overview <calendar-lists>`, ya hemos aprendido cómo aparecen en la lista de calendarios los calendarios que otros comparten con usted. A continuación se explica cómo hacer que otros usuarios puedan acceder a los calendarios personales."
 
 #: ../../en_US/_plugins/calendar/sharing.rst:19
 msgid "Share a Calendar with others"

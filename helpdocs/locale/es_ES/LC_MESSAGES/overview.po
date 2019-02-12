@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the Roundcube Webmail Help package.
 # 
 # Translators:
+# Berta Narváez <bertanarvaez@hotmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: Kolab Documentation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-26 23:28+0100\n"
-"PO-Revision-Date: 2014-11-27 23:33+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Spanish (http://www.transifex.com/projects/p/kolab-documentation/language/es/)\n"
+"PO-Revision-Date: 2017-09-21 17:03+0000\n"
+"Last-Translator: Berta Narváez <bertanarvaez@hotmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/kolab/kolab-documentation/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,7 +20,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:6
 msgid "Overview"
-msgstr ""
+msgstr "Información general"
 
 #: ../../en_US/_plugins/calendar/overview.rst:8
 msgid ""
@@ -27,7 +28,7 @@ msgid ""
 ":ref:`Calendar View <calendar-view>` itself, a small :ref:`Calendar Widget "
 "<calendar-minicalendar>` the :ref:`calendar-lists` as well as the usual "
 "toolbar and search box."
-msgstr ""
+msgstr "La misma pantalla del módulo de calendario presenta las siguientes partes: el :ref: `Calendar View <calendar-view>`, una pequeña :ref: `Calendario: <calendar-minicalendar>` :ref: `calendar-lists` as Así como la barra de herramientas usual y cuadro de búsqueda."
 
 #: ../../en_US/_plugins/calendar/overview.rst:17
 msgid "Calendar View"

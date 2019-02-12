@@ -1,3 +1,9 @@
-/.settings/
-/.buildpath
-/.project
+*.swp
+*.bak
+*.old
+*~
+config.inc.php
+skins/*
+!skins/default
+!skins/larry
+!skins/mce_larry

@@ -47,11 +47,12 @@ class melanie2_mapping {
    * @return string
    */
   public static function rc_to_m2_status($status_rc) {
-    $status_rc = strtolower($status_rc);
     $mapping = array(
             self::DEFAULT_VALUE => LibMelanie\Api\Melanie2\Event::STATUS_CONFIRMED,
-            'confirmed' => LibMelanie\Api\Melanie2\Event::STATUS_CONFIRMED,
-            'cancelled' => LibMelanie\Api\Melanie2\Event::STATUS_CANCELLED,
+            'CONFIRMED' => LibMelanie\Api\Melanie2\Event::STATUS_CONFIRMED,
+            'CANCELLED' => LibMelanie\Api\Melanie2\Event::STATUS_CANCELLED,
+            'TENTATIVE' => LibMelanie\Api\Melanie2\Event::STATUS_TENTATIVE, 
+            'FREE' => LibMelanie\Api\Melanie2\Event::STATUS_NONE
     );
     if (isset($mapping[$status_rc])) {
       $status_m2 = $mapping[$status_rc];
@@ -70,10 +71,11 @@ class melanie2_mapping {
    */
   public static function m2_to_rc_status($status_m2) {
     $mapping = array(
-            self::DEFAULT_VALUE => 'confirmed',
-            LibMelanie\Api\Melanie2\Event::STATUS_NONE => 'confirmed',
-            LibMelanie\Api\Melanie2\Event::STATUS_CONFIRMED => 'confirmed',
-            LibMelanie\Api\Melanie2\Event::STATUS_CANCELLED => 'cancelled',
+            self::DEFAULT_VALUE => 'CONFIRMED',
+            LibMelanie\Api\Melanie2\Event::STATUS_NONE => 'FREE',
+            LibMelanie\Api\Melanie2\Event::STATUS_CONFIRMED => 'CONFIRMED',
+            LibMelanie\Api\Melanie2\Event::STATUS_CANCELLED => 'CANCELLED',
+            LibMelanie\Api\Melanie2\Event::STATUS_TENTATIVE => 'TENTATIVE',        
     );
     if (isset($mapping[$status_m2])) {
       $status_rc = $mapping[$status_m2];

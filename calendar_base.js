@@ -34,7 +34,6 @@ function rcube_calendar(settings)
     rcube_libcalendaring.call(this, settings);
 
     // member vars
-    this.ui;
     this.ui_loaded = false;
     this.selected_attachment = null;
 
@@ -80,17 +79,16 @@ function rcube_calendar(settings)
           }
           return;
         }
-        else {
-          // get message contents for event dialog
-          var lock = rcmail.set_busy(true, 'loading');
-          rcmail.http_post('calendar/mailtoevent', {
-              '_mbox': rcmail.env.mailbox,
-              '_uid': uid
-            }, lock);
-        }
+
+        // get message contents for event dialog
+        var lock = rcmail.set_busy(true, 'loading');
+        rcmail.http_post('calendar/mailtoevent', {
+            '_mbox': rcmail.env.mailbox,
+            '_uid': uid
+          }, lock);
       }
     };
-    
+
     // callback function triggered from server with contents for the new event
     this.mail2event_dialog = function(event)
     {
@@ -109,7 +107,7 @@ function rcube_calendar(settings)
         rcmail.http_post('calendar/mailimportattach', {
             _uid: rcmail.env.uid,
             _mbox: rcmail.env.mailbox,
-            _part: this.selected_attachment,
+            _part: this.selected_attachment
             // _calendar: $('#calendar-attachment-saveto').val(),
           }, rcmail.set_busy(true, 'itip.savingdata'));
       }
@@ -149,11 +147,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
     // register create-from-mail command to message_commands array
     if (rcmail.env.task == 'mail') {
-      rcmail.register_command('calendar-create-from-mail', function() { cal.create_from_mail() });
-      rcmail.register_command('attachment-save-calendar', function() { cal.save_to_calendar() });
-      rcmail.addEventListener('plugin.mail2event_dialog', function(p){ cal.mail2event_dialog(p) });
-      rcmail.addEventListener('plugin.unlock_saving', function(p){ cal.ui && cal.ui.unlock_saving(); });
-      
+      rcmail.register_command('calendar-create-from-mail', function() { cal.create_from_mail(); });
+      rcmail.register_command('attachment-save-calendar', function() { cal.save_to_calendar(); });
+      rcmail.addEventListener('plugin.mail2event_dialog', function(p) { cal.mail2event_dialog(p); });
+      rcmail.addEventListener('plugin.unlock_saving', function(p) { cal.ui && cal.ui.unlock_saving(); });
+
       if (rcmail.env.action != 'show') {
         rcmail.env.message_commands.push('calendar-create-from-mail');
         rcmail.add_element($('<a>'));
@@ -171,16 +169,13 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
       });
     }
     
-    if (rcmail.env.task == 'mail' || rcmail.env.task == 'addressbook') {
-      // PAMELA - Add event every where from shortcut
-      rcmail.register_command('add-event-from-shortcut', function() { cal.add_event_from_shortcut(); }, true);
-    }
-    
+    // PAMELA - Add event every where from shortcut
+    rcmail.register_command('add-event-from-shortcut', function() { cal.add_event_from_shortcut(); }, true);
   }
 
   rcmail.register_command('plugin.calendar', function() { rcmail.switch_task('calendar'); }, true);
-  
-  rcmail.addEventListener('plugin.ping_url', function(p){
+
+  rcmail.addEventListener('plugin.ping_url', function(p) {
     var action = p.action;
     p.action = p.event = null;
     new Image().src = rcmail.url(action, p);

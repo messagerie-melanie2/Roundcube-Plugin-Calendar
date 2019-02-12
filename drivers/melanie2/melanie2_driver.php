@@ -886,13 +886,13 @@ class melanie2_driver extends calendar_driver {
         // Test si l'utilisateur est seulement participant
         $organizer = $_event->organizer;
         if (isset($organizer) && ! $organizer->extern && ! empty($organizer->uid) && $organizer->uid != $this->calendars[$event['calendar']]->owner) {
-          return false;
+          return true;
         }
         // Test si privé
         $is_private = (($event->class == LibMelanie\Api\Melanie2\Event::CLASS_PRIVATE || $event->class == LibMelanie\Api\Melanie2\Event::CLASS_CONFIDENTIAL) && $this->calendars[$event->calendar]->owner != $this->user->uid && $event->owner != $this->user->uid && ! $this->calendars[$event->calendar]->asRight(LibMelanie\Config\ConfigMelanie::PRIV));
 
         if ($is_private) {
-          return false;
+          return true;
         }
         if (isset($event['_savemode']) && $event['_savemode'] == 'current') {
           $_exception = new LibMelanie\Api\Melanie2\Exception($_event, $this->user, $this->calendars[$event['calendar']]);
@@ -966,7 +966,7 @@ class melanie2_driver extends calendar_driver {
           $_event = $this->_write_postprocess($_event, $event, false, true);
         }
         if ($_event->save() !== null) {
-          return true;
+          return $_event->uid;
         }
       }
     }
@@ -1073,11 +1073,8 @@ class melanie2_driver extends calendar_driver {
       $_event->recurrence->rrule = $event['recurrence'];
     }
     // Status
-    if (isset($event['free_busy']) || isset($event['status'])) {
+    if (isset($event['status'])) {
       $_event->status = melanie2_mapping::rc_to_m2_status($event['status']);
-      if ($event['free_busy'] != 'busy' && $_event->status == \LibMelanie\Api\Melanie2\Event::STATUS_CONFIRMED) {
-        $_event->status = melanie2_mapping::rc_to_m2_free_busy($event['free_busy']);
-      }
     }
     // Transparency
     if ($_event->status == LibMelanie\Api\Melanie2\Event::STATUS_NONE) {
@@ -1254,13 +1251,16 @@ class melanie2_driver extends calendar_driver {
         }
       }
       else {
-        $event_uid = $_event->uid;
-        if ($_event->delete()) {
-          $this->remove_event_attachments($event_uid);
-          return true;
-        }
-        else {
-          return false;
+        // 0005105: La suppression d'un événement simple ne le charge pas
+        if ($_event->load()) {
+          $event_uid = $_event->uid;
+          if ($_event->delete()) {
+            $this->remove_event_attachments($event_uid);
+            return true;
+          }
+          else {
+            return false;
+          }
         }
       }
     }
@@ -1322,6 +1322,9 @@ class melanie2_driver extends calendar_driver {
       }
 
       if (isset($event['calendar']) && isset($this->calendars[$event['calendar']])) {
+        // if (strpos($event['id'], '@RECURRENCE-ID') !== false) {
+
+        // }
         $_event = new LibMelanie\Api\Melanie2\Event($this->user, $this->calendars[$event['calendar']]);
         if (isset($event['uid'])) {
           $_event->uid = $event['uid'];
@@ -1333,33 +1336,18 @@ class melanie2_driver extends calendar_driver {
         elseif (isset($event['id'])) {
           $id = $event['id'];
           if (strpos($id, '@DATE-') !== false) {
-            $_occurrence_id = $id;
             $id = explode('@DATE-', $id);
-            $_exception_id = $id[0] . '-' . date('Ymd', $id[1]) . self::RECURRENCE_ID;
-            
-            if (isset($event['start'])) {
-              $start = ($event['start'] instanceof DateTime) ? $event['start']->getTimestamp() : strtotime($event['start']);
-            }
-            else {
-              $start = $id[1];
-            }
-            if (isset($event['end'])) {
-              $end = ($event['end'] instanceof DateTime) ? $event['end']->getTimestamp() : strtotime($event['end']);
-            }
-            else {
-              $end = $id[1] + 60 * 60 * 24;
+            if (isset($event['_savemode']) && $event['_savemode'] == 'current') {
+              $_recurrence_date = $id[1];
             }
             $id = $id[0];
           }
           else if (strpos($id, self::RECURRENCE_ID) !== false) {
-            $_exception_id = $id;
             $id = substr($id, 0, strlen($id) - strlen(self::RECURRENCE_DATE . self::RECURRENCE_ID));
           }
           // Récupération d'une instance d'événement
-          if (isset($event['_instance']) && ! empty($event['_instance']) && !isset($_occurrence_id)) {
-            $_occurrence_id = $id . '@DATE-' . strtotime($event['_instance']);
-            $start = strtotime($event['start']);
-            $end = strtotime($event['end']);
+          if (isset($event['_instance']) && ! empty($event['_instance'])) {
+            $id .= '-' . substr($event['_instance'], 0, 8) . self::RECURRENCE_ID;
           }
           $_event->uid = $id;
         }
@@ -1375,51 +1363,15 @@ class melanie2_driver extends calendar_driver {
           if (isset($_identity)) {
             $event['_identity'] = $_identity;
           }
+          if (isset($_recurrence_date)) {
+            $event['recurrence_date'] = rcube_utils::anytodatetime("@$_recurrence_date", $event['start']->getTimezone());
+          }
+
           $attachments = ( array ) $this->list_attachments($_event);
           if (count($attachments) > 0) {
             $event['attachments'] = $attachments;
           }
-          if (isset($_exception_id)) {
-            foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
-              if ($exception['id'] == $_exception_id) {
-                return $exception;
-              }
-            }
-          }
-          if (isset($_occurrence_id)) {
-            if ($_occurrence_id == $event['id'] . "@DATE-" . $event['start']->getTimestamp()) {
-              $event['id'] .= "@DATE-" . $event['start']->getTimestamp();
-              return $event;
-            }
-            else {
-              require_once ($this->cal->home . '/lib/calendar_recurrence.php');
-              $recurrence = new calendar_recurrence($this->cal, $event, new DateTime(date('Y-m-d H:i:s', $start)));              
-              // Parcour toutes les occurrences de la récurrence
-              while ($next_event = $recurrence->next_instance()) {
-                if (strtotime($next_event['end']->format(self::DB_DATE_FORMAT)) < $start) {
-                  continue;
-                }
-                if (strtotime($next_event['start']->format(self::DB_DATE_FORMAT)) > $end) {
-                  break;
-                }
-                // Ajout de la date de l'occurrence pour la récupérer lors des modifications
-                $next_event['id'] .= "@DATE-" . strtotime($next_event['start']->format('Y-m-d H:i:s'));
-                if ($next_event['id'] == $_occurrence_id) {
-                  // Supprimer les exceptions
-                  unset($next_event['recurrence']['EXCEPTIONS']);
-                  // Retourner l'occurrence courante
-                  return $next_event;
-                }
-                
-              }
-            }
-            
-            
-          }
-          if (!isset($_occurrence_id) && !isset($_exception_id)) {
-            return $event;
-          }
-          
+          return $event;
         }
       }
       else {
@@ -1484,9 +1436,6 @@ class melanie2_driver extends calendar_driver {
    */
   public function load_events($start, $end, $query = null, $calendars = null, $virtual = 1, $modifiedsince = null, $freebusy = false) {
     // Charge les données seulement si on est dans la tâche calendrier
-    if ($this->rc->task != 'calendar' && $this->rc->task != 'login') {
-      return false;
-    }
     if (melanie2_logs::is(melanie2_logs::DEBUG))
       melanie2_logs::get_instance()->log(melanie2_logs::DEBUG, "[calendar] melanie2_driver::load_events($start, $end, $query, $calendars)");
 
@@ -1594,23 +1543,6 @@ class melanie2_driver extends calendar_driver {
           $_event = $this->_read_postprocess($_e, $freebusy);
 
           if ($virtual) {
-            
-            if (isset($_event['recurrence'])) {
-              $_recurrence = $_event['recurrence'];
-              if (isset($_event['recurrence']['EXCEPTIONS'])) {
-                if (isset($_event['recurrence']['EXDATE'])) {
-                  $deleted_exceptions = $_event['recurrence']['EXDATE'];
-                }
-                else {
-                  $deleted_exceptions = [];
-                }
-                foreach ($_event['recurrence']['EXCEPTIONS'] as $ex) {
-                  $deleted_exceptions[] = new DateTime($ex['_instance']);
-                }
-                $_event['recurrence']['EXDATE'] = $deleted_exceptions;
-              }
-            }
-            
             $recurrence = new calendar_recurrence($this->cal, $_event, new DateTime(date('Y-m-d H:i:s', $start - 60 * 60 * 60 * 24)));
             // Pour la première occurrence, supprimer si une exception existe
             $master = true;
@@ -1626,17 +1558,6 @@ class melanie2_driver extends calendar_driver {
             if ($master) {
               // Ajout de la date de l'occurrence pour la récupérer lors des modifications
               $_event['id'] .= "@DATE-" . strtotime($_event['start']->format('Y-m-d H:i:s'));
-              if (isset($_event['recurrence'])) {
-                // Sauvegarde le master id
-                $_recurrence_id = $_event['id'];
-                // Préciser le master id
-                $_event['recurrence_id'] = 0;
-                if (isset($_event['recurrence']['EXCEPTIONS'])) {
-                  $_event['recurrence'] = $_recurrence;
-                  // Supprimer les exceptions
-                  unset($_event['recurrence']['EXCEPTIONS']);
-                }
-              }
               // Ajoute l'évènement maitre pour afficher la première occurence
               $_events[] = $_event;
             }
@@ -1650,26 +1571,11 @@ class melanie2_driver extends calendar_driver {
               }
               // Ajout de la date de l'occurrence pour la récupérer lors des modifications
               $next_event['id'] .= "@DATE-" . strtotime($next_event['start']->format('Y-m-d H:i:s'));
-              if (!isset($_recurrence_id)) {
-                // Sauvegarde le master id
-                $_recurrence_id = $next_event['id'];
-                // Préciser le master id
-                $next_event['recurrence_id'] = 0;
-              }
-              else {
-                // Préciser le master id
-                $next_event['recurrence_id'] = $_recurrence_id;
-              }
-              // Supprimer les exceptions
-              unset($next_event['recurrence']['EXCEPTIONS']);
               $_events[] = $next_event;
             }
             // Ajoute les exceptions
-            if (isset($_recurrence) && isset($_recurrence['EXCEPTIONS']) && count($_recurrence['EXCEPTIONS']) > 0) {
-              foreach ($_recurrence['EXCEPTIONS'] as $_ex) {
-                $_ex['recurrence'] = $_recurrence;
-                // Supprimer les exceptions
-                unset($_ex['recurrence']['EXCEPTIONS']);
+            if (isset($_event['recurrence']) && isset($_event['recurrence']['EXCEPTIONS']) && count($_event['recurrence']['EXCEPTIONS']) > 0) {
+              foreach ($_event['recurrence']['EXCEPTIONS'] as $_ex) {
                 $_events[] = $_ex;
               }
               unset($_event['recurrence']['EXCEPTIONS']);
@@ -1756,8 +1662,8 @@ class melanie2_driver extends calendar_driver {
     if ($event->all_day) {
       $_event['allday'] = 1;
       // Passer les journées entières à 12h - 13h pour régler les problèmes
-      $_event['start'] = new DateTime(substr($event->start, 0, strlen($event->start) - strlen('00:00:00')) . ' 12:00:00', new DateTimeZone($event->timezone));
-      $_event['end'] = new DateTime(substr($event->end, 0, strlen($event->end) - strlen('00:00:00')) . ' 13:00:00', new DateTimeZone($event->timezone));
+      $_event['start'] = new DateTime(substr($event->start, 0, strlen($event->start) - strlen('00:00:00')) . ' 00:00:00', new DateTimeZone($event->timezone));
+      $_event['end'] = new DateTime(substr($event->end, 0, strlen($event->end) - strlen('00:00:00')) . ' 01:00:00', new DateTimeZone($event->timezone));
       // Supprimer un jour pour le décalage
       $_event['end']->sub(new DateInterval("P1D"));
     }
@@ -1883,14 +1789,6 @@ class melanie2_driver extends calendar_driver {
           $_event['recurrence'] = $this->_read_event_exceptions($event, $recurrence);
         }
       }
-      else {
-        $_event['id'] = $event->realuid;
-        $_event['recurrence_id'] = $event->uid;
-        //$e['recurrence'] = $recurrence;
-        $_event['_instance'] = $event->recurrenceId;
-        $_event['recurrence_date'] = rcube_utils::anytodatetime($_event['_instance'], $_event['start']->getTimezone());
-        $_event['isexception'] = 1;
-      }
     }
     // Pb de memoire
     if (melanie2_logs::is(melanie2_logs::TRACE))
@@ -1925,7 +1823,7 @@ class melanie2_driver extends calendar_driver {
         $e['_instance'] = $_exception->recurrenceId;
         $e['recurrence_date'] = rcube_utils::anytodatetime($e['_instance'], $e['start']->getTimezone());
         $e['isexception'] = 1;
-        //$deleted_exceptions[] = new DateTime($_exception->recurrenceId);
+        $deleted_exceptions[] = new DateTime($_exception->recurrenceId);
         $recurrence['EXCEPTIONS'][] = $e;
       }
     }

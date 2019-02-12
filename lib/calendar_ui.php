@@ -36,7 +36,7 @@ class calendar_ui
     $this->rc = $cal->rc;
     $this->screen = $this->rc->task == 'calendar' ? ($this->rc->action ? $this->rc->action: 'calendar') : 'other';
   }
-
+    
   /**
    * Calendar UI initialization and requests handlers
    */
@@ -54,6 +54,7 @@ class calendar_ui
             'classsel' => 'button-calendar button-selected ui-link ui-btn ui-corner-all ui-icon-calendar ui-btn-icon-left',
             'innerclass' => 'button-inner',
             'label'   => 'calendar.calendar',
+			'type'       => 'link'
         ), 'taskbar_mobile');
     } else {
         // add taskbar button
@@ -63,6 +64,7 @@ class calendar_ui
             'classsel' => 'button-calendar button-selected',
             'innerclass' => 'button-inner',
             'label'   => 'calendar.calendar',
+			'type'       => 'link'
         ), 'taskbar');
     }
 
@@ -79,7 +81,7 @@ class calendar_ui
     }
 
     $this->cal->include_stylesheet($skin_path . '/calendar.css');
-
+    
     $this->ready = true;
   }
 
@@ -111,6 +113,7 @@ class calendar_ui
     $this->cal->register_handler('plugin.resource_calendar', array($this, 'resource_calendar'));
     $this->cal->register_handler('plugin.attendees_freebusy_table', array($this, 'attendees_freebusy_table'));
     $this->cal->register_handler('plugin.edit_attendees_notify', array($this, 'edit_attendees_notify'));
+    $this->cal->register_handler('plugin.edit_recurrence_sync', array($this, 'edit_recurrence_sync'));
     $this->cal->register_handler('plugin.edit_recurring_warning', array($this, 'recurring_event_warning'));
     $this->cal->register_handler('plugin.event_rsvp_buttons', array($this, 'event_rsvp_buttons'));
     $this->cal->register_handler('plugin.angenda_options', array($this, 'angenda_options'));
@@ -154,168 +157,75 @@ class calendar_ui
   }
 
   /**
-   * MANTIS 3598: Le mode Catégorie en contour, calendrier en contenu se comporte bizarrement
+   *
    */
   function calendar_css($attrib = array())
   {
     $mode = $this->rc->config->get('calendar_event_coloring', $this->cal->defaults['calendar_event_coloring']);
     $categories = $this->cal->driver->list_categories();
     $css = "\n";
-
-    // MANTIS 3598: Le mode Catégorie en contour, calendrier en contenu se comporte bizarrement
-    $calendars = $this->cal->driver->list_calendars();
-    foreach ((array)$calendars as $id => $prop) {
-        if (!$prop['color'])
-            continue;
-        $color = $prop['color'];
-        $text_color = $this->text_color($color);
-        $class = 'cal-' . asciiwords($id, true);
-        $css .= "li.$class, #eventshow .$class { color: #$color }\n";
-
-        $css .= ".fc-event-$class, ";
-        $css .= ".fc-event-$class .fc-event-skin, ";
-        $css .= ".fc-event-$class .fc-event-inner {";
-        if (!$attrib['printmode']) {
-          $css .= " background-color: #$color !important;";
-          $css .= " color: $text_color !important;";
-        }           
-        $css .= " border-color: #$color !important;";        
-        $css .= "}\n";
-        $css .= ".$class .handle { background-color: #$color; }";
-
-        // Inverser la couleur des icones si on est en black
-        if ($text_color == '#000') {
-            $css .= ".fc-event-$class .fc-icon-alarms, ";
-            $css .= ".fc-event-$class .fc-icon-sensitive, ";
-            $css .= ".fc-event-$class .fc-icon-recurring { ";
-            $css .= " background: url('plugins/calendar/skins/melanie2_larry/images/eventicons_black.png') no-repeat scroll 0px 0px transparent;";
-            $css .= "}\n";
-            $css .= ".fc-event-$class .fc-icon-alarms { ";
-            $css .= " background-position: 0px -13px;";
-            $css .= "}\n";
-            $css .= ".fc-event-$class .fc-icon-sensitive { ";
-            $css .= " background-position: 0 -25px;";
-            $css .= "}\n";
-        }
-    }
-
+    
     foreach ((array)$categories as $class => $color) {
       if (empty($color))
         continue;
-
-      $text_color = $this->text_color($color);
-
+      
       $class = 'cat-' . asciiwords(strtolower($class), true);
       $css  .= ".$class { color: #$color }\n";
       if ($mode > 0) {
-          if ($mode == 1) {
-              $css .= ".fc-event-$class, ";
-              $css .= ".fc-event-$class .fc-event-skin, ";
-              $css .= ".fc-event-$class .fc-event-inner {";
-              $css .= " background-color: #" . $color . " !important;";
-              $css .= " color: $text_color !important;";
-              $css .= "}\n";
-
-              // Inverser la couleur des icones si on est en black
-              if ($text_color == '#000') {
-                  $css .= ".fc-event-$class .fc-icon-alarms, ";
-                  $css .= ".fc-event-$class .fc-icon-sensitive, ";
-                  $css .= ".fc-event-$class .fc-icon-recurring { ";
-                  $css .= " background: url('plugins/calendar/skins/melanie2_larry/images/eventicons_black.png') no-repeat scroll 0px 0px transparent;";
-                  $css .= "}\n";
-                  $css .= ".fc-event-$class .fc-icon-alarms { ";
-                  $css .= " background-position: 0px -13px;";
-                  $css .= "}\n";
-                  $css .= ".fc-event-$class .fc-icon-sensitive { ";
-                  $css .= " background-position: 0 -25px;";
-                  $css .= "}\n";
-              }
-              else {
-                  $css .= ".fc-event-$class .fc-icon-alarms, ";
-                  $css .= ".fc-event-$class .fc-icon-sensitive, ";
-                  $css .= ".fc-event-$class .fc-icon-recurring { ";
-                  $css .= " background: url('plugins/calendar/skins/melanie2_larry/images/eventicons.png') no-repeat scroll 0px 0px transparent;";
-                  $css .= "}\n";
-                  $css .= ".fc-event-$class .fc-icon-alarms { ";
-                  $css .= " background-position: 0px -13px;";
-                  $css .= "}\n";
-                  $css .= ".fc-event-$class .fc-icon-sensitive { ";
-                  $css .= " background-position: 0 -25px;";
-                  $css .= "}\n";
-              }
-          }
-          else if ($mode == 2) {
-              $css .= ".fc-event-$class .fc-event-bg {";
-              $css .= " opacity: 0.9;";
-              $css .= " filter: alpha(opacity=90);";
-              $css .= " background-color: #" . $color . " !important;";
-              $css .= " color: $text_color !important;";
-              $css .= "}\n";
-              $css .= ".fc-event-$class.fc-event-hori .fc-event-inner {";
-              $css .= " background-color: #" . $color . " !important;";
-              $css .= " color: $text_color !important;";
-              $css .= "}\n";
-              $css .= ".fc-event-$class.fc-event-vert .fc-event-title {";
-              $css .= " color: $text_color !important;";
-              $css .= "}\n";
-          }
-          else if ($mode == 3) {
-              $css .= ".fc-event-$class, ";
-              $css .= ".fc-event-$class .fc-event-skin, ";
-              $css .= ".fc-event-$class .fc-event-inner {";
-              $css .= " border-color: #" . $color . " !important;";
-              $css .= "}\n";
-              $css .= ".fc-event-$class.fc-event-vert .fc-event-head { ";
-              $css .= " background-color: #" . $color . " !important;";
-              $css .= " border-color: #" . $color . " !important;";
-              $css .= " color: $text_color !important;";
-              $css .= "}\n";
-
-              // Inverser la couleur des icones si on est en black
-              if ($this->text_color($color) == '#000') {
-                  $css .= ".fc-event-$class .fc-icon-alarms, ";
-                  $css .= ".fc-event-$class .fc-icon-sensitive, ";
-                  $css .= ".fc-event-$class .fc-icon-recurring { ";
-                  $css .= " background: url('plugins/calendar/skins/melanie2_larry/images/eventicons_black.png') no-repeat scroll 0px 0px transparent;";
-                  $css .= "}\n";
-                  $css .= ".fc-event-$class .fc-icon-alarms { ";
-                  $css .= " background-position: 0px -13px;";
-                  $css .= "}\n";
-                  $css .= ".fc-event-$class .fc-icon-sensitive { ";
-                  $css .= " background-position: 0 -25px;";
-                  $css .= "}\n";
-              }
-              else {
-                  $css .= ".fc-event-$class .fc-icon-alarms, ";
-                  $css .= ".fc-event-$class .fc-icon-sensitive, ";
-                  $css .= ".fc-event-$class .fc-icon-recurring { ";
-                  $css .= " background: url('plugins/calendar/skins/melanie2_larry/images/eventicons.png') no-repeat scroll 0px 0px transparent;";
-                  $css .= "}\n";
-                  $css .= ".fc-event-$class .fc-icon-alarms { ";
-                  $css .= " background-position: 0px -13px;";
-                  $css .= "}\n";
-                  $css .= ".fc-event-$class .fc-icon-sensitive { ";
-                  $css .= " background-position: 0 -25px;";
-                  $css .= "}\n";
-              }
-          }
+        if ($mode == 2) {
+          $css .= ".fc-event-$class .fc-event-bg {";
+          $css .= " opacity: 0.9;";
+          $css .= " filter: alpha(opacity=90);";
+        }
+        else {
+          $css .= ".fc-event-$class.fc-event-skin, ";
+          $css .= ".fc-event-$class .fc-event-skin, ";
+          $css .= ".fc-event-$class .fc-event-inner {";
+        }
+        $css .= " background-color: #" . $color . ";";
+        if ($mode % 2)
+          $css .= " border-color: #$color;";
+        $css .= "}\n";
       }
     }
+    
+    $calendars = $this->cal->driver->list_calendars();
+    foreach ((array)$calendars as $id => $prop) {
+      if (!$prop['color'])
+        continue;
+      $css .= $this->calendar_css_classes($id, $prop, $mode);
+    }
+    
     return html::tag('style', array('type' => 'text/css'), $css);
   }
 
   /**
-   * MANTIS 3282: Le titre de l'évenement est toujours écrit en blanc quelque soit la couleur du calendrier
-   * @param string $color Background color
-   * @return string Text color
+   *
    */
-  function text_color($color)
+  public function calendar_css_classes($id, $prop, $mode)
   {
-      $r = hexdec(substr($color, 0, 2));
-      $g = hexdec(substr($color, 2, 2));
-      $b = hexdec(substr($color, 4, 2));
+    $color = $prop['color'];
+    $class = 'cal-' . asciiwords($id, true);
+    $css .= "li .$class, #eventshow .$class { color: #$color; }\n";
 
-      return round((($r * 299) + ($g * 587) + ($b * 114)) / 1000) > 128 ? '#000' : '#fff';
+    if ($mode != 1) {
+      if ($mode == 3) {
+        $css .= ".fc-event-$class .fc-event-bg {";
+        $css .= " opacity: 0.9;";
+        $css .= " filter: alpha(opacity=90);";
+      }
+      else {
+        $css .= ".fc-event-$class, ";
+        $css .= ".fc-event-$class .fc-event-inner {";
+      }
+      if (!$prop['printmode'])
+        $css .= " background-color: #$color;";
+      if ($mode % 2 == 0)
+      $css .= " border-color: #$color;";
+      $css .= "}\n";
+    }
+
+    return $css . ".$class .handle { background-color: #$color; }\n";
   }
 
   /**
@@ -354,6 +264,7 @@ class calendar_ui
       );
     }
 
+    $this->rc->output->set_env('source', rcube_utils::get_input_value('source', rcube_utils::INPUT_GET));
     $this->rc->output->set_env('calendars', $jsenv);
     $this->rc->output->add_gui_object('calendarslist', $attrib['id']);
 
@@ -439,8 +350,8 @@ class calendar_ui
       $content = html::div(join(' ', $classes),
         html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? rcube::Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' :
-          html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
-          html::span('actions',
+          html::label(null, html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '')) .
+          html::span('actions', 
             ($prop['removable'] ? html::a(array('href' => '#', 'class' => 'remove', 'title' => $this->cal->gettext('removelist')), ' ') : '') .
             html::a(array('href' => '#', 'class' => 'quickview', 'title' => $this->cal->gettext('quickview'), 'role' => 'checkbox', 'aria-checked' => 'false'), '') .
             (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->cal->gettext('calendarsubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') : '')
@@ -460,20 +371,20 @@ class calendar_ui
   {
     $attrib += array('id' => 'agendaoptions');
     $attrib['style'] .= 'display:none';
-
+    
     $select_range = new html_select(array('name' => 'listrange', 'id' => 'agenda-listrange'));
     $select_range->add(1 . ' ' . preg_replace('/\(.+\)/', '', $this->cal->lib->gettext('days')), $days);
     foreach (array(2,5,7,14,30,60,90,180,365) as $days)
       $select_range->add($days . ' ' . preg_replace('/\(|\)/', '', $this->cal->lib->gettext('days')), $days);
-
+    
     $html .= html::label('agenda-listrange', $this->cal->gettext('listrange'));
     $html .= $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']));
-
+    
     $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections'));
     $select_sections->add('---', '');
     foreach (array('day' => 'libcalendaring.days', 'week' => 'libcalendaring.weeks', 'month' => 'libcalendaring.months', 'smart' => 'calendar.smartsections') as $val => $label)
       $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
-
+    
     $html .= html::span('spacer', '&nbsp;');
     $html .= html::label('agenda-listsections', $this->cal->gettext('listsections'));
     $html .= $select_sections->show($this->rc->config->get('calendar_agenda_sections', $this->cal->defaults['calendar_agenda_sections']));
@@ -545,10 +456,12 @@ class calendar_ui
   {
     $attrib['name'] = 'status';
     $select = new html_select($attrib);
-    $select->add('---', '');
+    // MANTIS 0005114: Gestion d'un seul statut comme le courrielleur
+    //$select->add('---', '');
     $select->add($this->cal->gettext('status-confirmed'), 'CONFIRMED');
+    $select->add($this->cal->gettext('status-tentative'), 'TENTATIVE');
     $select->add($this->cal->gettext('status-cancelled'), 'CANCELLED');
-    //$select->add($this->cal->gettext('tentative'), 'TENTATIVE');
+    $select->add($this->cal->gettext('status-free'), 'FREE');
     return $select->show(null);
   }
 
@@ -586,7 +499,7 @@ class calendar_ui
     $select->add('9 '.$this->cal->gettext('lowest'),  '9');
     return $select->show(null);
   }
-
+  
   /**
    * Render HTML input for sensitivity selection
    */
@@ -599,7 +512,7 @@ class calendar_ui
     $select->add($this->cal->gettext('confidential'), 'confidential');
     return $select->show(null);
   }
-
+  
   /**
    * Render HTML form for alarm configuration
    */
@@ -609,7 +522,7 @@ class calendar_ui
   }
 
   /**
-   *
+   * Render HTML for attendee notification warning
    */
   function edit_attendees_notify($attrib = array())
   {
@@ -618,18 +531,27 @@ class calendar_ui
   }
 
   /**
+   * Render HTML for recurrence option to align start date with the recurrence rule
+   */
+  function edit_recurrence_sync($attrib = array())
+  {
+    $checkbox = new html_checkbox(array('name' => '_start_sync', 'value' => 1));
+    return html::div($attrib, html::label(null, $checkbox->show(1) . ' ' . $this->cal->gettext('eventstartsync')));
+  }
+
+  /**
    * Generate the form for recurrence settings
    */
   function recurring_event_warning($attrib = array())
   {
     $attrib['id'] = 'edit-recurring-warning';
-
+    
     $radio = new html_radiobutton(array('name' => '_savemode', 'class' => 'edit-recurring-savemode'));
     $form = html::label(null, $radio->show('', array('value' => 'current')) . $this->cal->gettext('currentevent')) . ' ' .
        html::label(null, $radio->show('', array('value' => 'future')) . $this->cal->gettext('futurevents')) . ' ' .
        html::label(null, $radio->show('all', array('value' => 'all')) . $this->cal->gettext('allevents')) . ' ' .
        html::label(null, $radio->show('', array('value' => 'new')) . $this->cal->gettext('saveasnew'));
-
+       
     return html::div($attrib, html::div('message', html::span('ui-icon ui-icon-alert', '') . $this->cal->gettext('changerecurringeventwarning')) . html::div('savemode', $form));
   }
 
@@ -723,7 +645,7 @@ class calendar_ui
 
     $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'event-export-attachments', 'value' => 1));
     $html .= html::div('form-section',
-      html::label('event-export-range', $this->cal->gettext('exportattachments')) .
+      html::label('event-export-attachments', $this->cal->gettext('exportattachments')) .
       $checkbox->show(1)
     );
 
@@ -745,7 +667,7 @@ class calendar_ui
       $attrib['id'] = 'rcmUploadForm';
 
     // Get max filesize, enable upload progress bar
-    $max_filesize =$this->rc->upload_init();
+    $max_filesize = $this->rc->upload_init();
 
     $button = new html_inputfield(array('type' => 'button'));
     $input = new html_inputfield(array(
@@ -754,7 +676,7 @@ class calendar_ui
 
     return html::div($attrib,
       html::div(null, $input->show()) .
-      html::div('formbuttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
+      html::div('buttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
         'onclick' => rcmail_output::JS_OBJECT_NAME . ".upload_file(this.form)"))) .
       html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
     );
@@ -992,7 +914,7 @@ class calendar_ui
         html::div(array('id' => 'schedule-event-time', 'style' => 'display:none'), '&nbsp;')
       )
     );
-
+    
     return $table->show($attrib);
   }
 
@@ -1007,7 +929,7 @@ class calendar_ui
         $this->cal->invitestatus
       );
     }
-
+    
     return '';
   }
 

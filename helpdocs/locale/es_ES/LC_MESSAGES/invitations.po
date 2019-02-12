@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the Roundcube Webmail Help package.
 # 
 # Translators:
+# Berta Narváez <bertanarvaez@hotmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: Kolab Documentation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-26 23:28+0100\n"
-"PO-Revision-Date: 2014-11-27 23:33+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Spanish (http://www.transifex.com/projects/p/kolab-documentation/language/es/)\n"
+"PO-Revision-Date: 2017-09-21 17:03+0000\n"
+"Last-Translator: Berta Narváez <bertanarvaez@hotmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/kolab/kolab-documentation/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,7 +20,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/invitations.rst:8
 msgid "Handle Event Invitations"
-msgstr ""
+msgstr "Gestionar las invitaciones para el evento"
 
 #: ../../en_US/_plugins/calendar/invitations.rst:10
 msgid ""
@@ -27,7 +28,7 @@ msgid ""
 "other people to an event. This will send out invitation emails to all the "
 "participants with the event data attached. That allows one to directly "
 "accept or decline an event invitation."
-msgstr ""
+msgstr "En el capítulo :ref: `calendar-event-participants` hemos aprendido a invitar a otras personas a un evento. Enviará correos electrónicos con una invitación a todos los participantes con los datos del evento adjuntos. Esto permitirá aceptar directamente o rechazar una invitación de evento."
 
 #: ../../en_US/_plugins/calendar/invitations.rst:17
 msgid "Receive Event Invitations"

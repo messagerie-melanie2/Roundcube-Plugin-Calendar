@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the Roundcube Webmail Help package.
 # 
 # Translators:
+# Berta Narváez <bertanarvaez@hotmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: Kolab Documentation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-26 23:28+0100\n"
-"PO-Revision-Date: 2014-11-27 23:34+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Spanish (http://www.transifex.com/projects/p/kolab-documentation/language/es/)\n"
+"PO-Revision-Date: 2017-09-21 17:03+0000\n"
+"Last-Translator: Berta Narváez <bertanarvaez@hotmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/kolab/kolab-documentation/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,13 +20,13 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:8
 msgid "Calendar Preferences"
-msgstr ""
+msgstr "Preferencias del calendario"
 
 #: ../../en_US/_plugins/calendar/settings.rst:10
 msgid ""
 "The settings for the calendar module are listed in *Settings > Preferences* "
 "and are grouped by the following sections:"
-msgstr ""
+msgstr "Los ajustes del módulo de calendario se enumeran en *Ajustes> Preferencias* y se agrupan en las siguientes secciones:"
 
 #: ../../en_US/_plugins/calendar/settings.rst:14
 msgid "Main Options"
@@ -122,7 +123,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:54
 msgid "Categories"
-msgstr ""
+msgstr "Categorías"
 
 #: ../../en_US/_plugins/calendar/settings.rst:56
 msgid ""

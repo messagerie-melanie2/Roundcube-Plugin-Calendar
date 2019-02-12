@@ -70,6 +70,7 @@ $labels['mystatus'] = 'Môj stav';
 $labels['status'] = 'Stav';
 $labels['status-confirmed'] = 'Potvrdené';
 $labels['status-cancelled'] = 'Zrušené';
+$labels['status-tentative'] = 'Nezáväzne';
 $labels['priority'] = 'Priorita';
 $labels['importrange'] = 'Udalosti z';
 $labels['weekofyear'] = 'Týždeň';

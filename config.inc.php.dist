@@ -138,8 +138,9 @@ $config['calendar_freebusy_trigger'] = false;
 $config['calendar_include_freebusy_data'] = 1;
 
 // SMTP server host used to send (anonymous) itip messages.
-// Set to '' in order to use PHP's mail() function for email delivery.
 // To override the SMTP port or connection method, provide a full URL like 'tls://somehost:587'
+// This will add a link to invitation messages to allow users from outside
+// to reply when their mail clients do not support iTip format.
 $config['calendar_itip_smtp_server'] = null;
 
 // SMTP username used to send (anonymous) itip messages
@@ -149,15 +150,15 @@ $config['calendar_itip_smtp_user'] = 'smtpauth';
 $config['calendar_itip_smtp_pass'] = '123456';
 
 // show virtual invitation calendars (Kolab driver only)
-$config['kolab_invitation_calendars'] = true;
+$config['kolab_invitation_calendars'] = false;
 
 // Base URL to build fully qualified URIs to access calendars via CALDAV
 // The following replacement variables are supported:
 // %h - Current HTTP host
 // %u - Current webmail user name
-// %n - Calendar owner
-// %i - Calendar id
-// $config['calendar_caldav_url'] = 'http://%h/SabreDAV/calendars/%n/%i';
+// %n - Calendar name
+// %i - Calendar UUID
+// $config['calendar_caldav_url'] = 'http://%h/iRony/calendars/%u/%i';
 
 // Driver to provide a resource directory ('ldap' is the only implementation yet).
 // Leave empty or commented to disable resources support.
@@ -165,5 +166,10 @@ $config['kolab_invitation_calendars'] = true;
 
 // LDAP directory configuration to find avilable resources for events
 // $config['calendar_resources_directory'] = array(/* ldap_public-like address book configuration */);
+
+// Enables displaying of free-busy URL with token-based authentication
+// Set it to the prefix URL, e.g. 'https://hostname/freebusy' or just '/freebusy'.
+// See freebusy_session_auth in configuration of kolab_auth plugin.
+$config['calendar_freebusy_session_auth_url'] = null;
 
 ?>

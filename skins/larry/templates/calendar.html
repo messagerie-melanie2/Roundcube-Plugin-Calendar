@@ -15,8 +15,6 @@
 	<div id="calendarsidebar">
 		<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
 		<div id="calendartoolbar" class="toolbar" role="toolbar" aria-labelledby="aria-label-toolbar">
-			<!-- PAMELA - MANTIS 0004466: Ajouter un bouton pour rafraichir l'agenda -->
-			<roundcube:button command="refreshcalendar" type="link" class="button refreshcalendar disabled" classAct="button refreshcalendar" classSel="button refreshcalendar pressed" label="refresh" title="refresh" />
 			<roundcube:button command="addevent" type="link" class="button addevent disabled" classAct="button addevent" classSel="button addevent pressed" label="calendar.new_event" title="calendar.new_event" />
 			<roundcube:button command="print" type="link" class="button print disabled" classAct="button print" classSel="button print pressed" label="calendar.print" title="calendar.printtitle" />
 			<roundcube:button command="events-import" type="link" class="button import disabled" classAct="button import" classSel="button import pressed" label="import" title="calendar.importevents" />
@@ -37,7 +35,7 @@
 					<label for="calendarlistsearch" class="voice"><roundcube:label name="calendar.searchterms" /></label>
 					<input type="text" name="q" id="calendarlistsearch" placeholder="<roundcube:label name='calendar.findcalendars' />" />
 					<a class="iconbutton searchicon"></a>
-					<roundcube:button command="reset-listsearch" id="calendarlistsearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+					<roundcube:button type="link" command="reset-listsearch" id="calendarlistsearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 				</div>
 			</div>
 			<div class="scroller withfooter">
@@ -54,7 +52,7 @@
 		<label for="quicksearchbox" class="voice"><roundcube:label name="calendar.arialabelquicksearchbox" /></label>
 		<roundcube:object name="plugin.searchform" id="quicksearchbox" />
 		<a id="searchmenulink" class="iconbutton searchoptions" tabindex="-1"> </a>
-		<roundcube:button command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+		<roundcube:button type="link" command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 	</div>
 
 	<h2 id="aria-label-calendarview" class="voice"><roundcube:label name="calendar.arialabelcalendarview" /></h2>
@@ -70,45 +68,44 @@
 <div id="calendaroptionsmenu" class="popupmenu" aria-hidden="true">
 	<h3 id="aria-label-calendaroptions" class="voice"><roundcube:label name="calendar.calendaractions" /></h3>
 	<ul id="calendaroptionsmenu-menu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-calendaroptions">
-		<li role="menuitem"><roundcube:button command="calendar-edit" label="calendar.edit" classAct="active" /></li>
-		<li role="menuitem"><roundcube:button command="calendar-delete" label="delete" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="calendar-edit" label="calendar.edit" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="calendar-delete" label="delete" classAct="active" /></li>
 		<roundcube:if condition="env:calendar_driver == 'kolab'" />
-		<li role="menuitem"><roundcube:button command="calendar-remove" label="calendar.removelist" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="calendar-remove" label="calendar.removelist" classAct="active" /></li>
 		<roundcube:endif />
-		<!-- MANTIS 3607: Permettre de remplacer tous les évènements lors d'un import -->
-    <li><roundcube:button command="calendar-delete-all" label="calendar.delete_all" classAct="active" /></li>
-		<li role="menuitem"><roundcube:button command="calendar-showurl" label="calendar.showurl" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="calendar-showurl" label="calendar.showurl" classAct="active" /></li>
+		<roundcube:if condition="!empty(env:calendar_settings['freebusy_url'])" />
+		<li role="menuitem"><roundcube:button type="link" command="calendar-showfburl" label="calendar.showfburl" classAct="active" /></li>
+		<roundcube:endif />
 		<roundcube:if condition="env:calendar_driver == 'kolab'" />
-		<li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="folders" task="settings" label="managefolders" classAct="active" /></li>
 		<roundcube:endif />
-    <!-- PAMELA -->
-    <roundcube:container name="calendaroptionsmenu" id="calendargroupoptionsmenu" />
 	</ul>
 </div>
 
 <div id="eventshow" class="uidialog eventdialog" aria-hidden="true">
 	<h1 id="event-title">Event Title</h1>
+	<div id="event-status-badge"><span></span></div>
 	<div class="event-section" id="event-location">Location</div>
 	<div class="event-section" id="event-date">From-To</div>
 	<div class="event-section" id="event-description">
-		<h5 class="label"><roundcube:label name="calendar.description" /></h5>
-		<div class="event-text"></div>
-	</div>
-	<div class="event-section" id="event-url">
-		<h5 class="label"><roundcube:label name="calendar.url" /></h5>
-		<div class="event-text"></div>
-	</div>
-	<div class="event-section" id="event-repeat">
-		<h5 class="label"><roundcube:label name="calendar.repeat" /></h5>
-		<div class="event-text"></div>
-	</div>
-	<div class="event-section" id="event-alarm">
-		<h5 class="label"><roundcube:label name="calendar.alarms" /></h5>
 		<div class="event-text"></div>
 	</div>
 	<div class="event-section event-attendees" id="event-attendees">
-		<h5 class="label"><roundcube:label name="calendar.tabattendees" /></h5>
 		<div class="event-text"></div>
+	</div>
+	<div class="spacer">&nbsp;</div>
+	<div class="event-line" id="event-url">
+		<label><roundcube:label name="calendar.url" /></label>
+		<span class="event-text"></span>
+	</div>
+	<div class="event-line" id="event-repeat">
+		<label><roundcube:label name="calendar.repeat" /></label>
+		<span class="event-text"></span>
+	</div>
+	<div class="event-line" id="event-alarm">
+		<label><roundcube:label name="calendar.alarms" /></label>
+		<span class="event-text"></span>
 	</div>
 	<div class="event-line" id="event-partstat">
 		<label><roundcube:label name="calendar.mystatus" /></label>
@@ -137,19 +134,12 @@
 		<label><roundcube:label name="calendar.priority" /></label>
 		<span class="event-text"></span>
 	</div>
+	<!--
 	<div class="event-line" id="event-sensitivity">
 		<label><roundcube:label name="calendar.sensitivity" /></label>
 		<span class="event-text"></span>
 	</div>
-	<div class="event-section" id="event-links">
-		<label><roundcube:label name="calendar.links" /></label>
-		<span class="event-text"></span>
-		<br style="clear:left">
-	</div>
-	<div class="event-section" id="event-attachments">
-		<label><roundcube:label name="attachments" /></label>
-		<div class="event-text"></div>
-	</div>
+	-->
 	<div class="event-line" id="event-created-changed">
 		<label><roundcube:label name="calendar.created" /></label>
 		<span class="event-text event-created"></span>
@@ -160,6 +150,13 @@
 		<label><roundcube:label name="calendar.rsvpcomment" /></label>
 		<span class="event-text"></span>
 	</div>
+	<div class="event-section" id="event-links">
+		<label><roundcube:label name="calendar.links" /></label>
+		<span class="event-text"></span>
+	</div>
+	<div class="event-section" id="event-attachments">
+		<div class="event-text"></div>
+	</div>
 
 	<roundcube:object name="plugin.event_rsvp_buttons" id="event-rsvp" class="event-dialog-message" style="display:none" />
 </div>
@@ -167,10 +164,11 @@
 <div id="eventoptionsmenu" class="popupmenu" aria-hidden="true">
 	<h3 id="aria-label-eventoptions" class="voice"><roundcube:label name="calendar.eventoptions" /></h3>
 	<ul id="eventoptionsmenu-menu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-eventoptions">
-		<li role="menuitem"><roundcube:button command="event-download" label="download" classAct="active" /></li>
-		<li role="menuitem"><roundcube:button command="event-sendbymail" label="send" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="event-download" label="download" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="event-sendbymail" label="send" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="event-copy" label="copy" classAct="active" /></li>
 		<roundcube:if condition="env:calendar_driver == 'kolab' && config:kolab_bonnie_api" />
-		<li role="menuitem"><roundcube:button command="event-history" type="link" label="calendar.eventhistory" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="event-history" label="calendar.eventhistory" classAct="active" /></li>
 		<roundcube:endif />
 	</ul>
 </div>
@@ -269,7 +267,7 @@
 					<label for="resourcesearchbox" class="voice"><roundcube:label name="calendar.searchterms" /></label>
 					<roundcube:object name="plugin.resources_searchform" id="resourcesearchbox" />
 					<a id="resourcesearchmenulink" class="iconbutton searchoptions"> </a>
-					<roundcube:button command="reset-resource-search" id="resourcesearchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+					<roundcube:button type="link" command="reset-resource-search" id="resourcesearchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 				</div>
 			</div>
 			<div class="scroller">
@@ -360,20 +358,15 @@
 <div id="calendarurlbox" class="uidialog">
 	<p><roundcube:label name="calendar.showurldescription" /></p>
 	<textarea id="calfeedurl" rows="2" readonly="readonly"></textarea>
-	<!-- PAMELA -->
-	<p><roundcube:label name="calendar.freebusyurldescription" /></p>
-  <textarea id="calfreebusyurl" rows="2" readonly="readonly"></textarea>
-  <div id="ppublicfeedurl">
-	  <p><label>
-		  <input type="checkbox" id="checkpublicfeedurl" name="checkpublicfeedurl" value="1" onclick="rcmail.command('calendar-check-feed-url')" >
-		  <roundcube:label name="calendar.calendarfeedurldescription" />
-	  </label></p>
-	  <textarea id="calpublicfeedurl" rows="2" readonly="readonly"></textarea>
-  </div>
 	<div id="calendarcaldavurl" style="display:none">
 		<p><roundcube:label name="calendar.caldavurldescription" html="yes" /></p>
 		<textarea id="caldavurl" rows="2" readonly="readonly"></textarea>
 	</div>
+</div>
+
+<div id="fburlbox" class="uidialog">
+	<p><roundcube:label name="calendar.fburldescription" /></p>
+	<textarea id="fburl" rows="2" readonly="readonly"></textarea>
 </div>
 
 <roundcube:object name="plugin.calendar_css" />
@@ -384,8 +377,6 @@
 var UI = new rcube_mail_ui();
 
 $(document).ready(function(e){
-	UI.init();
-
 	new calendarview_splitter({ id:'calsidebarsplitter', p1:'#calendarsidebar', p2:'#calendar',
 		orientation:'v', relative:true, start:280, min:260, size:12, offset:0 });
 
